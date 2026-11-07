@@ -3,15 +3,15 @@ class AppConfig {
   static const String appVersion = '1.0.0';
   static const int appVersionCode = 100;
 
-  // Supabase Configuration (توضع هنا أو تؤخذ من .env)
+  // Supabase Configuration Live
   static const String supabaseUrl = String.fromEnvironment(
     'SUPABASE_URL',
-    defaultValue: 'https://your-project.supabase.co',
+    defaultValue: 'https://tobahtnzxccvkkqwlqok.supabase.co',
   );
 
   static const String supabaseAnonKey = String.fromEnvironment(
     'SUPABASE_ANON_KEY',
-    defaultValue: 'your-anon-key-here',
+    defaultValue: 'sb_publishable_-Uh3L2jZTDLSGvNHONga1Q_Ce-_P04D',
   );
 }
 
