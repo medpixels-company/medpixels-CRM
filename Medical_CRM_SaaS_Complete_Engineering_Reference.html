@@ -1,0 +1,2756 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical CRM SaaS – Complete Software Engineering Architecture & Technical Reference Book</title>
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111827;
+            --bg-surface: #1f2937;
+            --bg-card: #162032;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --accent-primary: #3b82f6;
+            --accent-hover: #2563eb;
+            --accent-teal: #14b8a6;
+            --border-color: #374151;
+            --border-light: #4b5563;
+            --code-bg: #0d1117;
+            --warning-bg: rgba(245, 158, 11, 0.1);
+            --warning-border: #f59e0b;
+            --danger-bg: rgba(239, 68, 68, 0.1);
+            --danger-border: #ef4444;
+            --success-bg: rgba(16, 185, 129, 0.1);
+            --success-border: #10b981;
+            --info-bg: rgba(59, 130, 246, 0.1);
+            --info-border: #3b82f6;
+            --font-arabic: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, system-ui;
+            --font-code: 'Fira Code', 'Courier New', Courier, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-arabic);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.8;
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
+        /* Top Progress Bar */
+        #progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: transparent;
+            z-index: 1000;
+        }
+        #progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-teal), var(--accent-primary));
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        /* Top Navigation Bar */
+        header.top-nav {
+            position: sticky;
+            top: 0;
+            background-color: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.75rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 900;
+        }
+
+        .nav-brand {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .search-box input {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            outline: none;
+            width: 240px;
+            transition: border-color 0.2s;
+        }
+        .search-box input:focus {
+            border-color: var(--accent-primary);
+        }
+
+        .btn {
+            background-color: var(--accent-primary);
+            color: #ffffff;
+            border: none;
+            padding: 0.45rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .btn:hover {
+            background-color: var(--accent-hover);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
+        }
+        .btn-outline:hover {
+            background: var(--bg-surface);
+            border-color: var(--accent-primary);
+        }
+
+        /* Main Container Layout */
+        .layout-container {
+            display: flex;
+            min-height: calc(100vh - 60px);
+        }
+
+        /* Sidebar Navigation */
+        aside.sidebar {
+            width: 340px;
+            background-color: var(--bg-secondary);
+            border-left: 1px solid var(--border-color);
+            overflow-y: auto;
+            height: calc(100vh - 60px);
+            position: sticky;
+            top: 60px;
+            padding: 1.5rem 1rem;
+            flex-shrink: 0;
+        }
+
+        .sidebar h3 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            padding-right: 0.5rem;
+        }
+
+        .toc-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .toc-part-title {
+            font-weight: 700;
+            color: var(--accent-teal);
+            font-size: 0.95rem;
+            margin: 0.8rem 0 0.4rem 0;
+            padding: 0.2rem 0.5rem;
+            border-right: 3px solid var(--accent-teal);
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar li a {
+            display: block;
+            padding: 0.35rem 0.6rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.88rem;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .sidebar li a:hover, .sidebar li a.active {
+            background-color: var(--bg-surface);
+            color: var(--accent-primary);
+            padding-right: 0.9rem;
+        }
+
+        /* Main Content */
+        main.content {
+            flex-grow: 1;
+            padding: 2.5rem 4rem;
+            max-width: 1280px;
+            margin: 0 auto;
+            overflow-x: hidden;
+        }
+
+        /* Cover Page styling */
+        .book-cover {
+            background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 50%, #102a43 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 4rem 3rem;
+            margin-bottom: 4rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            text-align: center;
+            position: relative;
+        }
+
+        .book-cover h1 {
+            font-size: 2.6rem;
+            color: #ffffff;
+            margin-bottom: 1rem;
+            line-height: 1.3;
+        }
+
+        .book-cover .subtitle {
+            font-size: 1.35rem;
+            color: var(--accent-teal);
+            margin-bottom: 2rem;
+            font-weight: 500;
+        }
+
+        .book-meta {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-top: 2.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .meta-item strong {
+            color: #ffffff;
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+
+        /* Typography & Headings */
+        h1, h2, h3, h4, h5 {
+            color: #ffffff;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+
+        .part-header {
+            margin-top: 4rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: linear-gradient(90deg, rgba(20,184,166,0.15), transparent);
+            border-right: 6px solid var(--accent-teal);
+            border-radius: 0 8px 8px 0;
+        }
+        .part-header h2 {
+            font-size: 1.9rem;
+            color: #ffffff;
+        }
+        .part-header p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            margin-top: 0.5rem;
+        }
+
+        .chapter-section {
+            margin-bottom: 4rem;
+            padding-bottom: 3rem;
+            border-bottom: 1px solid var(--border-color);
+            scroll-margin-top: 80px;
+        }
+
+        .chapter-title {
+            font-size: 1.7rem;
+            color: var(--accent-primary);
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .chapter-title::before {
+            content: "§";
+            color: var(--accent-teal);
+            font-weight: 400;
+        }
+
+        h3.section-subtitle {
+            font-size: 1.25rem;
+            margin: 2rem 0 1rem 0;
+            color: #e5e7eb;
+            border-right: 3px solid var(--accent-primary);
+            padding-right: 0.75rem;
+        }
+
+        h4.subsection-title {
+            font-size: 1.1rem;
+            margin: 1.5rem 0 0.75rem 0;
+            color: #d1d5db;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+            color: var(--text-primary);
+            text-align: justify;
+        }
+
+        /* Callout Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 4px;
+            text-transform: uppercase;
+            margin-left: 0.5rem;
+            font-family: var(--font-code);
+        }
+        .badge-arch {
+            background-color: #8b5cf6;
+            color: #ffffff;
+        }
+        .badge-proposed {
+            background-color: #0284c7;
+            color: #ffffff;
+        }
+        .badge-example {
+            background-color: #059669;
+            color: #ffffff;
+        }
+
+        /* Alert / Note / Warning Boxes */
+        .callout {
+            border-radius: 8px;
+            padding: 1.2rem 1.5rem;
+            margin: 1.5rem 0;
+            border-right: 5px solid;
+            font-size: 0.95rem;
+        }
+
+        .callout-info {
+            background-color: var(--info-bg);
+            border-color: var(--info-border);
+            color: #93c5fd;
+        }
+
+        .callout-warning {
+            background-color: var(--warning-bg);
+            border-color: var(--warning-border);
+            color: #fcd34d;
+        }
+
+        .callout-danger {
+            background-color: var(--danger-bg);
+            border-color: var(--danger-border);
+            color: #fca5a5;
+        }
+
+        .callout-success {
+            background-color: var(--success-bg);
+            border-color: var(--success-border);
+            color: #6ee7b7;
+        }
+
+        .callout strong {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-size: 1rem;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            margin: 1.5rem 0 2rem 0;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--bg-card);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+            font-size: 0.92rem;
+        }
+
+        thead {
+            background-color: var(--bg-surface);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        th {
+            padding: 0.85rem 1rem;
+            color: var(--accent-teal);
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+            vertical-align: top;
+        }
+
+        tbody tr:hover {
+            background-color: rgba(255,255,255,0.02);
+        }
+
+        /* Code Blocks */
+        .code-wrapper {
+            position: relative;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            background-color: var(--code-bg);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            direction: ltr;
+            text-align: left;
+        }
+
+        .code-header {
+            background-color: #161b22;
+            padding: 0.5rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            font-family: var(--font-code);
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+        }
+
+        .copy-btn {
+            background: var(--bg-surface);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-light);
+            padding: 0.25rem 0.6rem;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            color: #ffffff;
+            border-color: var(--accent-primary);
+        }
+
+        pre {
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-family: var(--font-code);
+            font-size: 0.88rem;
+            line-height: 1.6;
+            color: #e6edf3;
+        }
+
+        code {
+            font-family: var(--font-code);
+            direction: ltr;
+            display: inline-block;
+        }
+
+        p code, li code, td code {
+            background-color: rgba(110, 118, 129, 0.25);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.88rem;
+            color: #ff7b72;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 0.75rem 2rem 1.5rem 0;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        /* Diagrams */
+        .diagram-box {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .diagram-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-bottom: 1rem;
+            display: block;
+            text-align: center;
+            direction: rtl;
+        }
+
+        .diagram-caption {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-top: 1rem;
+            text-align: center;
+            direction: rtl;
+        }
+
+        .mermaid {
+            direction: ltr;
+            display: flex;
+            justify-content: center;
+            background: #ffffff;
+            padding: 1.5rem;
+            border-radius: 6px;
+            color: #111827;
+            overflow-x: auto;
+        }
+
+        /* Footer & Back to top */
+        footer.book-footer {
+            border-top: 1px solid var(--border-color);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 4rem;
+        }
+
+        #back-to-top {
+            position: fixed;
+            bottom: 25px;
+            left: 25px;
+            background-color: var(--accent-primary);
+            color: #ffffff;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            z-index: 800;
+            font-size: 1.2rem;
+            transition: transform 0.2s;
+        }
+        #back-to-top:hover {
+            transform: translateY(-3px);
+            background-color: var(--accent-hover);
+        }
+
+        /* Print Media Queries */
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-size: 11pt;
+            }
+            header.top-nav, aside.sidebar, #progress-container, #back-to-top, .copy-btn {
+                display: none !important;
+            }
+            main.content {
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .chapter-section {
+                page-break-before: always;
+                border-bottom: none;
+            }
+            .code-wrapper, .table-container, .diagram-box {
+                border: 1px solid #cccccc !important;
+                background: #fafafa !important;
+                page-break-inside: avoid;
+            }
+            pre, code {
+                color: #111111 !important;
+            }
+            .part-header {
+                page-break-before: always;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            aside.sidebar {
+                display: none;
+            }
+            main.content {
+                padding: 1.5rem 1rem;
+            }
+        }
+    </style>
+    <!-- Mermaid JS for offline diagram rendering fallback -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            if (typeof mermaid !== "undefined") {
+                mermaid.initialize({
+                    startOnLoad: true,
+                    theme: 'neutral',
+                    securityLevel: 'loose',
+                    flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' }
+                });
+            }
+        });
+    </script>
+</head>
+<body>
+
+<div id="progress-container"><div id="progress-bar"></div></div>
+
+<header class="top-nav">
+    <div class="nav-brand">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        <span>Medical CRM SaaS Engineering Architecture</span>
+    </div>
+    <div class="nav-controls">
+        <div class="search-box">
+            <input type="text" id="docSearch" placeholder="بحث في المرجع الهندسي..." onkeyup="searchContent()">
+        </div>
+        <button class="btn btn-outline" onclick="window.print()">طباعة المرجع (A4)</button>
+    </div>
+</header>
+
+<div class="layout-container">
+    <aside class="sidebar" id="sidebar">
+        <h3>جدول محتويات المرجع الهندسي</h3>
+        <div class="toc-group">
+            <div class="toc-part-title">PART I – SYSTEM FOUNDATIONS</div>
+            <ul>
+                <li><a href="#ch1">الفصل 1: نظرة عامة على النظام (Overview)</a></li>
+                <li><a href="#ch2">الفصل 2: المتطلبات الوظيفية (Functional Reqs)</a></li>
+                <li><a href="#ch3">الفصل 3: المتطلبات غير الوظيفية (NFRs)</a></li>
+            </ul>
+        </div>
+        <div class="toc-group">
+            <div class="toc-part-title">PART II – SOFTWARE ARCHITECTURE</div>
+            <ul>
+                <li><a href="#ch4">الفصل 4: المعمارية العامة للنظام (System Architecture)</a></li>
+                <li><a href="#ch5">الفصل 5: معمارية المونوليث النمطي (Modular Monolith)</a></li>
+                <li><a href="#ch6">الفصل 6: المعمارية متعددة المستأجرين (Multi-Tenancy & RLS)</a></li>
+            </ul>
+        </div>
+        <div class="toc-group">
+            <div class="toc-part-title">PART III – DATABASE ENGINEERING</div>
+            <ul>
+                <li><a href="#ch7">الفصل 7: معمارية قواعد البيانات PostgreSQL & PostGIS</a></li>
+                <li><a href="#ch8">الفصل 8: مخطط الكيانات والعلاقات الشامل (ERD)</a></li>
+                <li><a href="#ch9">الفصل 9: قاموس البيانات الشامل (Data Dictionary)</a></li>
+                <li><a href="#ch10">الفصل 10: مخطط جداول الإنتاج DDL SQL</a></li>
+                <li><a href="#ch11">الفصل 11: أداء واستعلامات قواعد البيانات الفائقة</a></li>
+            </ul>
+        </div>
+        <div class="toc-group">
+            <div class="toc-part-title">PART IV – GIS & FIELD FORCE</div>
+            <ul>
+                <li><a href="#ch12">الفصل 12: هندسة البيانات المكانية PostGIS</a></li>
+                <li><a href="#ch13">الفصل 13: معمارية التحقق من الموقع (GPS Check-in)</a></li>
+                <li><a href="#ch14">الفصل 14: إدارة دورة حياة الزيارات (Visit Management)</a></li>
+            </ul>
+        </div>
+        <div class="toc-group">
+            <div class="toc-part-title">PART V – SALES & CRM DOMAIN</div>
+            <ul>
+                <li><a href="#ch15">الفصل 15: إدارة العملاء والشبكات الطبية</a></li>
+                <li><a href="#ch16">الفصل 16: تسعير المنتجات وقوائم الأسعار المعقدة</a></li>
+                <li><a href="#ch17">الفصل 17: إدارة أوامر المبيعات (Sales Orders)</a></li>
+                <li><a href="#ch18">الفصل 18: الأهداف ومؤشرات الأداء KPI & Targets</a></li>
+            </ul>
+        </div>
+        <div class="toc-group">
+            <div class="toc-part-title">PART VI – MOBILE ENGINEERING</div>
+            <ul>
+                <li><a href="#ch19">الفصل 19: معمارية تطبيق Flutter للهواتف الذكية</a></li>
+                <li><a href="#ch20">الفصل 20: معمارية Offline-First والمزامنة التوافقية</a></li>
+                <li><a href="#ch21">الفصل 21: أمن الأجهزة المحمولة وتشفير التخزين</a></li>
+            </ul>
+        </div>
+        <div class="toc-group">
+            <div class="toc-part-title">PART VII – WEB ENGINEERING</div>
+            <ul>
+                <li><a href="#ch22">الفصل 22: معمارية لوحة التحكم بنظام SvelteKit</a></li>
+                <li><a href="#ch23">الفصل 23: نظام التصميم وواجهات المستخدم (UI/UX)</a></li>
+            </ul>
+        </div>
+        <div class="toc-group">
+            <div class="toc-part-title">PART VIII – API & INTEGRATIONS</div>
+            <ul>
+                <li><a href="#ch24">الفصل 24: معمارية واجهات REST API وOpenAPI</a></li>
+                <li><a href="#ch25">الفصل 25: طبقة التكامل مع أنظمة تخطيط الموارد ERP</a></li>
+                <li><a href="#ch26">الفصل 26: معمارية الإشعارات والرسائل التنبيهية</a></li>
+            </ul>
+        </div>
+        <div class="toc-group">
+            <div class="toc-part-title">PART IX – DEVOPS & CLOUD</div>
+            <ul>
+                <li><a href="#ch27">الفصل 27: معمارية الحاويات Docker البيئية</a></li>
+                <li><a href="#ch28">الفصل 28: هندسة النشر السحابي والبنية التحتية</a></li>
+                <li><a href="#ch29">الفصل 29: الرصد والملاحظة الشاملة (Observability)</a></li>
+                <li><a href="#ch30">الفصل 30: استراتيجيات النسخ الاحتياطي والتعافي (DR)</a></li>
+            </ul>
+        </div>
+        <div class="toc-group">
+            <div class="toc-part-title">PART X – SECURITY & TESTING</div>
+            <ul>
+                <li><a href="#ch31">الفصل 31: معمارية الأمن السيبراني ونمذجة التهديدات</a></li>
+                <li><a href="#ch32">الفصل 32: استراتيجيات الاختبار الشامل وجودة البرمجيات</a></li>
+                <li><a href="#ch33">الفصل 33: خطوط التكامل والنشر المستمر CI/CD</a></li>
+            </ul>
+        </div>
+        <div class="toc-group">
+            <div class="toc-part-title">PART XI – OPEN SOURCE AUDIT</div>
+            <ul>
+                <li><a href="#ch34">الفصل 34: تقييم المشروعات مفتوحة المصدر والامتثال</a></li>
+            </ul>
+        </div>
+        <div class="toc-group">
+            <div class="toc-part-title">PART XII – IMPLEMENTATION & AI</div>
+            <ul>
+                <li><a href="#ch35">الفصل 35: خارطة طريق التنفيذ والجدول الزمني</a></li>
+                <li><a href="#ch36">الفصل 36: نظام التطوير متعدد الوكلاء الذكي (AI Multi-Agent)</a></li>
+                <li><a href="#ch37">الفصل 37: تعليمات البيئة البرمجية الذكية (Master AI Prompt)</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="content" id="mainContent">
+        <!-- Cover Page -->
+        <div class="book-cover">
+            <h1>Medical CRM SaaS<br><span style="font-size:1.8rem; font-weight:400; color:#cbd5e1;">هندسة ومعمارية برمجيات المرجع التقني الشامل</span></h1>
+            <div class="subtitle">Complete Software Engineering Architecture & Technical Reference Book</div>
+            <p style="max-width: 800px; margin: 0 auto; color: var(--text-secondary); text-align: center;">
+                وثيقة معمارية وهندسية مرجعية متكاملة ومصممة خصيصاً لفرق هندسة البرمجيات، مهندسي المعمارية، ووكلاء البرمجة الذكية (AI Coding Agents). تغطي كافة تفاصيل بناء وتشغيل منصة B2B SaaS طبية لإدارة المبيعات الميدانية، المنشآت الطبية، وتتبع الزيارات دون المساس بخصوصية التتبع الدائم، مع تكامل محكم مع أنظمة ERP عبر معمارية Modular Monolith متينة وقابلة للتوسع.
+            </p>
+            <div class="book-meta">
+                <div class="meta-item"><strong>إصدار الوثيقة</strong>v1.0.0 Production Architecture</div>
+                <div class="meta-item"><strong>المعمارية المعتمدة</strong>Modular Monolith with PostgreSQL RLS</div>
+                <div class="meta-item"><strong>بيئة التشغيل</strong>Cloud-Native Dockerized Multi-Tenant</div>
+                <div class="meta-item"><strong>المصادقة الهندسية</strong>Approved for Production Engineering</div>
+            </div>
+        </div>
+\n
+        <!-- PART I -->
+        <div class="part-header" id="part1">
+            <h2>PART I: أساسيات وبنية النظام (SYSTEM FOUNDATIONS)</h2>
+            <p>تحديد سياق الأعمال، حدود النظام، ونماذج المتطلبات الوظيفية وغير الوظيفية لمنصة Medical CRM SaaS السحابية.</p>
+        </div>
+
+        <!-- Chapter 1 -->
+        <section class="chapter-section" id="ch1">
+            <h2 class="chapter-title">الفصل 1: نظرة عامة على المشروع (Project Overview)</h2>
+            
+            <h3 class="section-subtitle">1.1 الغرض من المنصة ومشاكل الأعمال المستهدفة</h3>
+            <p>
+                تمثل منصة <strong>Medical CRM SaaS</strong> نظاماً سحابياً متعدد المستأجرين (Multi-Tenant B2B SaaS) مصمماً خصيصاً لتلبية المتطلبات الهندسية والتنظيمية لشركات الأدوية (Pharmaceutical Companies)، موزعي المستلزمات الطبية (Medical Distributors)، ومصنعي الأجهزة الحيوية. تهدف المنصة إلى حل الإشكاليات المعقدة المرتبطة بإدارة فرق المبيعات الميدانية (Field Force Automation - FFA)، وجدولة الزيارات الدورية للأطباء والمستشفيات والصيدليات، وحساب خطوط التغطية الجغرافية، بالإضافة إلى إدارة مسارات موافقة وتدقيق أوامر البيع (Sales Orders) قبل ترحيلها إلى أنظمة تخطيط الموارد المؤسسية (ERP).
+            </p>
+            <p>
+                من أبرز التحديات التي تعالجها المنصة:
+            </p>
+            <ul>
+                <li><strong>انعدام موثوقية الزيارات الميدانية:</strong> معالجة مشكلة الزيارات الوهمية عبر إثبات الحضور الجغرافي (GPS Check-in Proof of Presence) عند بوابة العميل دون انتهاك الخصوصية أو استنزاف بطارية الهاتف عبر التتبع اللحظي المستمر.</li>
+                <li><strong>انفصال الميدان عن إدارة المبيعات:</strong> سد الفجوة بين مندوبي الدعاية والبيع وأقسام سلاسل الإمداد من خلال استيعاب أوامر البيع ومطابقتها مع سياسات الائتمان والخصم المعتمدة.</li>
+                <li><strong>عشوائية التوزيع الجغرافي:</strong> تحويل توزيع العملاء إلى مناطق جغرافية (Territories) محددة مضلعياً وإسنادها إلى فرق متخصصة لمنع تضارب التغطية.</li>
+                <li><strong>عزل البيانات التنظيمية (Multi-Tenant Isolation):</strong> تمكين مئات المؤسسات المشتركة من العمل على قاعدة بيانات مشتركة بتكلفة تشغيلية منخفضة، مع ضمان أمان وفصل مطلق للبيانات على مستوى النواة.</li>
+            </ul>
+
+            <h3 class="section-subtitle">1.2 فئات المستخدمين والشخصيات (User Personas)</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الشخصية (Persona)</th>
+                            <th>المنصة الرئيسية</th>
+                            <th>المسؤوليات والصلاحيات الأساسية</th>
+                            <th>الأهداف التشغيلية</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>مدير المنظمة (Organization Admin)</strong></td>
+                            <td>لوحة الويب (Web Dashboard)</td>
+                            <td>إدارة المستأجر، الفروع، المستخدمين، خطط الاشتراك، وسياسات التسعير وسير الموافقات.</td>
+                            <td>التحكم التشغيلي الكامل وضمان امتثال الشركة وضبط الصلاحيات.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>مدير المبيعات (Sales Manager)</strong></td>
+                            <td>لوحة الويب</td>
+                            <td>تحديد المناطق الجغرافية، إسناد الأهداف البيعية (Targets)، مراجعة التحليلات، واعتماد الخصومات الخاصة.</td>
+                            <td>تحقيق مستهدفات المبيعات ورفع كفاءة التغطية الجغرافية.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>المشرف الميداني (Supervisor)</strong></td>
+                            <td>لوحة الويب والتطبيق</td>
+                            <td>اعتماد خطط الزيارات الأسبوعية والشهرية، متابعة سجلات الـ Check-in، وتدقيق تقارير الزيارات.</td>
+                            <td>جودة التنفيذ الميداني وتوجيه المناديب.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>مندوب المبيعات / الدعاية (Medical Rep)</strong></td>
+                            <td>تطبيق الهاتف (Flutter)</td>
+                            <td>تنفيذ الزيارات الميدانية، تسجيل الـ Check-in بالـ GPS، تدوين الملاحظات، وإنشاء أوامر البيع Offline.</td>
+                            <td>إنجاز خطة الزيارات وتسجيل الطلبيات بسلاسة دون الحاجة لشبكة إنترنت مستمرة.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="section-subtitle">1.3 مخطط سياق النظام (System Context Diagram)</h3>
+            <p>يوضح المخطط التالي الحدود التنظيمية للمنصة، وتفاعل مختلف الجهات الفاعلة والأنظمة الخارجية مع النظام الأساسي:</p>
+            <div class="diagram-box">
+                <span class="diagram-title">System Context Architecture Diagram (C4 Level 1)</span>
+                <div class="mermaid">
+flowchart TB
+    subgraph Users ["المستخدمون والجهات الفاعلة"]
+        OA["مدير المنظمة
+(Org Admin)"]
+        SM["مدير المبيعات
+(Sales Manager)"]
+        SV["المشرف الميداني
+(Supervisor)"]
+        REP["المندوب الطبي
+(Medical Rep)"]
+    end
+
+    subgraph PlatformBoundary ["حدود منصة Medical CRM SaaS"]
+        WEB["لوحة الويب
+(SvelteKit Frontend)"]
+        APP["تطبيق الأجهزة الذكية
+(Flutter Offline-First)"]
+        API["بوابة الواجهات البرمجية والخادم
+(Django Modular Monolith API)"]
+        DB[(قاعدة بيانات PostgreSQL
++ PostGIS Spatial + RLS)]
+        REDIS[(ذاكرة التخزين المؤقت
+Redis & Celery Queue)]
+    end
+
+    subgraph ExternalSystems ["الأنظمة الخارجية"]
+        ERP["أنظمة تخطيط الموارد المؤسسية
+(ERP / Invoicing / Inventory)"]
+        NOTIF["خدمات الإشعارات
+(FCM / Email / SMS)"]
+        MAPS["مزود الخرائط الجغرافية
+(OpenStreetMap / Vector Tiles)"]
+    end
+
+    OA -->|إدارة المنظومة| WEB
+    SM -->|متابعة الأداء والاعتمادات| WEB
+    SV -->|مراجعة الخطط والزيارات| WEB
+    REP -->|الزيارات والطلبيات الميدانية| APP
+
+    WEB -->|HTTPS / REST API| API
+    APP -->|HTTPS / Sync Protocols| API
+
+    API -->|قراءة وكتابة معزولة RLS| DB
+    API -->|إدارة المهام والرسائل| REDIS
+    API -->|تزامن أوامر البيع المعتمدة| ERP
+    API -->|إرسال التنبيهات| NOTIF
+    APP -.->|جلب بلاطات الخرائط| MAPS
+                </div>
+                <div class="diagram-caption">مخطط C4 لمستوى سياق النظام يوضح تفاعل المستخدمين والأنظمة مع النواة المعمارية للمنصة</div>
+            </div>
+
+            <h3 class="section-subtitle">1.4 حدود نطاق الإصدار الأولي (MVP Scope Boundaries)</h3>
+            <div class="callout callout-warning">
+                <strong>تحديد صارم للمسؤوليات الهندسية لنطاق MVP:</strong>
+                تلتزم المنصة في إصدارها الإنتاجي الأول بنطاق هندسي محكم لا يتداخل مع أنظمة ERP أو الأنظمة الطبية التشخيصية:
+                <ul style="margin-top: 0.5rem;">
+                    <li><strong>ما يقع داخل النطاق:</strong> إدارة المستأجرين والاشتراكات، الصلاحيات RBAC، شبكة العملاء (صيدليات، عيادات، مستشفيات)، المناطق الجغرافية المضلعية، خطط الزيارات وتسجيل الحضور بالـ GPS Check-in النقطي، كتالوج المنتجات وقوائم الأسعار، دورة موافقات أوامر البيع، محرك المزامنة غير المتصلة (Offline-First)، وواجهات التكامل البرمجي Webhooks/REST مع ERP.</li>
+                    <li><strong>ما يقع قطعياً خارج النطاق (Excluded):</strong> إدارة المخازن وحركات الجرد الفعلي للمستودعات (تتبع نظام ERP حصراً)، المحاسبة المالية ودفاتر الأستاذ وإصدار الفواتير الضريبية الرسمية، التتبع اللحظي المستمر لحركة المندوب عبر الـ GPS (مرفوض معمارياً وأمنياً وأخلاقياً)، والتشخيص أو الاستشارات الطبية السريرية.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Chapter 2 -->
+        <section class="chapter-section" id="ch2">
+            <h2 class="chapter-title">الفصل 2: مواصفات المتطلبات الوظيفية (Functional Requirements)</h2>
+            <p>
+                تم توثيق متطلبات النظام الوظيفية وفقاً للمنهجية الهندسية الصارمة للمؤسسات. يعرّف كل متطلب بالمعرف الفريد، الجهة المنفذة، الشروط المسبقة، تدفق العمل الأساسي والبديل، قواعد التحقق، معايير القبول، ونقاط النهاية وجداول البيانات المرتبطة.
+            </p>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>المعرف (ID)</th>
+                            <th>الوحدة الوظيفية</th>
+                            <th>الوصف وقاعدة التحقق</th>
+                            <th>الفاعل والأذونات</th>
+                            <th>معايير القبول الهندسية (Acceptance Criteria)</th>
+                            <th>نقطة النهاية وكيان البيانات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>FR-TEN-01</code></td>
+                            <td>إدارة المستأجر (Tenant Provisioning)</td>
+                            <td>تسجيل منظمة جديدة، إنشاء حساب المدير الأول، وتخصيص مساحة عزل البيانات.</td>
+                            <td>System Admin / Public Registration</td>
+                            <td>توليد UUID فريد، تفعيل سياسة RLS للمستأجر، وتعيين خطة اشتراك تجريبية تلقائياً.</td>
+                            <td><code>POST /api/v1/tenancy/organizations/</code><br><code>organizations</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>FR-GEO-02</code></td>
+                            <td>تسجيل الحضور الجغرافي (GPS Check-in)</td>
+                            <td>تسجيل إحداثيات المندوب لحظة بدء الزيارة ومقارنتها بنصف قطر العميل الجغرافي (Geofence).</td>
+                            <td>Medical Rep (<code>visits.create</code>)</td>
+                            <td>حساب المسافة بدقة المتر عبر PostGIS، تعيين الحالة (valid / outside_geofence)، ورفض استلام أي إحداثيات مجهولة الدقة.</td>
+                            <td><code>POST /api/v1/visits/{id}/check-in/</code><br><code>visits</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>FR-ORD-03</code></td>
+                            <td>إنشاء وتدقيق أمر البيع (Sales Order)</td>
+                            <td>إنشاء طلب شراء ميداني يتضمن أصنافاً، خصومات، واحتساب مجاميع الضرائب والقيم.</td>
+                            <td>Medical Rep (<code>orders.create</code>)</td>
+                            <td>التقاط لقطة سعرية ثابتة (Price Snapshot) لمنع التغييرات اللاحقة، وتحويل الطلب لسير الموافقات في حال تجاوز الخصم المسموح.</td>
+                            <td><code>POST /api/v1/orders/</code><br><code>orders, order_items</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>FR-SYNC-04</code></td>
+                            <td>المزامنة غير المتصلة (Offline Sync)</td>
+                            <td>مزامنة الزيارات والطلبيات المسجلة بدون إنترنت عبر نمط صندوق الإرسال (Outbox Pattern).</td>
+                            <td>Mobile Client (<code>sync.push</code>)</td>
+                            <td>ضمان المعالجة غير المكررة باستخدام Idempotency Key ومعالجة التعارض وفقاً لنوع الكيان.</td>
+                            <td><code>POST /api/v1/sync/push/</code><br><code>sync_outbox, audit_logs</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>FR-ERP-05</code></td>
+                            <td>ترحيل الأوامر إلى ERP (Export Order)</td>
+                            <td>تصدير أمر البيع المعتمد نهائياً إلى نظام إدارة الموارد عبر Webhook أو API مع تأكيد الاستلام.</td>
+                            <td>System Worker / Celery</td>
+                            <td>إعادة المحاولة بأسلوب Exponential Backoff، تسجيل معرف الكيان الخارجي (External ID)، وتحديث الحالة إلى <code>exported</code>.</td>
+                            <td><code>POST /api/v1/integrations/export-order/</code><br><code>external_references</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Chapter 3 -->
+        <section class="chapter-section" id="ch3">
+            <h2 class="chapter-title">الفصل 3: المتطلبات غير الوظيفية (Non-Functional Requirements)</h2>
+            <p>
+                تمت صياغة الأهداف الهندسية غير الوظيفية كأهداف قياسية مستهدفة (Proposed Engineering Targets) قابلة للقياس والتحقق المعملي والتشغيلي:
+            </p>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>المعيار الهندسي</th>
+                            <th>المؤشر المستهدف (Target Metric)</th>
+                            <th>آلية القياس والتحقق المعماري</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>زمن استجابة الواجهات (API Latency)</strong></td>
+                            <td>p95 &lt; 200ms للاستعلامات المباشرة، p99 &lt; 500ms للاستعلامات المكانية المركبة.</td>
+                            <td>قياس دوري عبر OpenTelemetry وAPM داخل خادم Nginx وبوابة Django.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>عزل المستأجرين (Tenant Isolation)</strong></td>
+                            <td>0% تسريب بيانات عرضي (Zero Data Leakage) بين المستأجرين.</td>
+                            <td>تطبيق سياسة PostgreSQL RLS الإجبارية (FORCE RLS) مع اختبارات تكامل مؤتمتة في CI/CD.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>جاهزية النظام (Availability)</strong></td>
+                            <td>99.9% شهرياً (بحد أقصى توقف غير مجدول 43 دقيقة/شهر).</td>
+                            <td>نشر حاويات متكررة مع فحص سلامة صحي (Healthchecks) وتوزيع أحمال متزن.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>العمل دون اتصال (Offline Capability)</strong></td>
+                            <td>القدرة على العمل بنسبة 100% لكافة عمليات الحقل الحيوية لمدة 7 أيام متواصلة.</td>
+                            <td>قاعدة بيانات محلية Drift/SQLite مع معالجة غير متزامنة لطوابير المعاملات.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>استهلاك الطاقة والبطارية</strong></td>
+                            <td>استهلاك أقل من 3% من بطارية الهاتف خلال وردية عمل ميدانية كاملة (8 ساعات).</td>
+                            <td>الاعتماد التام على الفحص النقطي (Point-in-time GPS on demand) وإلغاء الاستشعار التتبعي الخلفي المستمر.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>التعافي من الكوارث (RPO / RTO)</strong></td>
+                            <td>RPO &le; 5 دقائق (نقطة فقدان البيانات)، RTO &le; 30 دقيقة (زمن استعادة الخدمة).</td>
+                            <td>أرشفة مستمرة لملفات WAL الخاصة بـ PostgreSQL مع نسخ احتياطي يومي مشفر على S3.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    \n
+        <!-- PART II -->
+        <div class="part-header" id="part2">
+            <h2>PART II: معمارية البرمجيات الشاملة (SOFTWARE ARCHITECTURE)</h2>
+            <p>التصميم المعماري متعدد الطبقات، نمط المونوليث النمطي (Modular Monolith)، واستراتيجية عزل البيانات الصارمة عبر PostgreSQL Row-Level Security.</p>
+        </div>
+
+        <!-- Chapter 4 -->
+        <section class="chapter-section" id="ch4">
+            <h2 class="chapter-title">الفصل 4: المعمارية العامة للنظام (Overall System Architecture)</h2>
+            
+            <h3 class="section-subtitle">4.1 الطبقات الهندسية للنظام (System Tiered Layers)</h3>
+            <p>
+                تم اعتماد معمارية متعددة الطبقات تضمن الفصل الواضح للمسؤوليات (Separation of Concerns)، وقابلية التوسع الأفقي، وسهولة الاختبار والصيانة:
+            </p>
+            <ol>
+                <li><strong>طبقة العرض والعملاء (Presentation Layer):</strong> تتكون من تطبيقين رئيسيين؛ لوحة تحكم الويب للمديرين والمشرفين والمبنية باستخدام SvelteKit لتوفير واجهات فائقة السرعة والأداء، وتطبيق الهواتف الذكية لمندوبي المبيعات والمطور بتقنية Flutter لدعم العمل بدون اتصال بالإنترنت كأولوية قصوى (Offline-First).</li>
+                <li><strong>بوابة الدخول والواجهات البرمجية (API Layer):</strong> مبنية على Django REST Framework (DRF) وموثقة بالكامل وفق معيار OpenAPI 3، ومسؤولة عن توجيه الطلبات، التحقق المبدئي، وضبط سياق المستأجر.</li>
+                <li><strong>طبقة المصادقة والتحقق من السياق (Auth & Tenant Resolution Layer):</strong> فحص رمز المصادقة (JWT) واستخلاص معرف المنظمة <code>organization_id</code> من سجل العضوية المؤكد على الخادم، وتمريره كمتغير جلسة آمن داخل اتصال قاعدة البيانات.</li>
+                <li><strong>طبقة الخدمات ونطاق الأعمال (Application & Domain Services):</strong> تحتوي على منطق الأعمال الصافي (Pure Business Logic) مجزءاً إلى نماذج ومكونات نمطية منفصلة تماماً.</li>
+                <li><strong>طبقة استمرار البيانات (Persistence Layer):</strong> خادم PostgreSQL 16 مدعوماً بامتداد PostGIS للبيانات الجغرافية مع تفعيل سياسات Row-Level Security (RLS) الإجبارية.</li>
+                <li><strong>طبقة المعالجة الخلفية غير المتزامنة (Async Processing Layer):</strong> تتألف من Celery Workers مدعومة بـ Redis كوسيط للرسائل (Message Broker) للتعامل مع المهام الثقيلة كالمزامنة الدفعية، معالجة الإشعارات، وتصدير الأوامر إلى أنظمة ERP.</li>
+            </ol>
+
+            <h3 class="section-subtitle">4.2 مخطط الحاويات ونشر المكونات (Container Architecture Diagram)</h3>
+            <div class="diagram-box">
+                <span class="diagram-title">Container & Service Architecture Diagram (C4 Level 2)</span>
+                <div class="mermaid">
+flowchart TD
+    subgraph Clients ["العملاء"]
+        WebBrowser["متصفح الويب (SvelteKit Client)"]
+        MobileApp["تطبيق المندوب (Flutter Mobile App)"]
+    end
+
+    subgraph Edge ["طبقة الحافة والشبكة"]
+        ReverseProxy["Nginx Reverse Proxy
+(TLS Termination / Rate Limiting)"]
+    end
+
+    subgraph AppCluster ["مجموعة خوادم التطبيق (Docker)"]
+        SvelteServer["SvelteKit Node Server
+(SSR & Static Dashboard)"]
+        DjangoApp["Django Core API Server
+(Gunicorn WSGI Workers)"]
+        CeleryWorker["Celery Background Worker
+(Async Sync / ERP Export)"]
+        CeleryBeat["Celery Beat Scheduler
+(Scheduled Tasks)"]
+    end
+
+    subgraph StorageCluster ["طبقة البيانات والتخزين"]
+        PostgresDB[(PostgreSQL 16 + PostGIS
+Row-Level Security Enabled)]
+        RedisStore[(Redis 7 Cache
+Broker & Tenant Sessions)]
+        S3Bucket[("S3-Compatible Storage
+MinIO / AWS S3 Assets")]
+    end
+
+    WebBrowser -->|HTTPS / 443| ReverseProxy
+    MobileApp -->|HTTPS / 443| ReverseProxy
+
+    ReverseProxy -->|Proxy Pass| SvelteServer
+    ReverseProxy -->|API Routing /api/v1/*| DjangoApp
+
+    SvelteServer -->|Server Fetch| DjangoApp
+    DjangoApp -->|SQL Context SET LOCAL| PostgresDB
+    DjangoApp -->|Task Enqueue| RedisStore
+    DjangoApp -->|Secure Upload| S3Bucket
+
+    CeleryWorker -->|Process Tasks| RedisStore
+    CeleryWorker -->|SQL Tenant Context| PostgresDB
+    CeleryBeat -->|Trigger Crons| RedisStore
+                </div>
+                <div class="diagram-caption">مخطط C4 لمستوى الحاويات يوضح توزيع الخدمات والاتصالات المشفرة وعزل التخزين</div>
+            </div>
+
+            <h3 class="section-subtitle">4.3 تدفق طلب البيانات وسياق المستأجر (Tenant Request Lifecycle)</h3>
+            <div class="diagram-box">
+                <span class="diagram-title">Tenant Request Lifecycle & RLS Enforcement Sequence</span>
+                <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor Rep as مندوب المبيعات (Flutter)
+    participant Nginx as Nginx Proxy
+    participant Auth as Django Auth Middleware
+    participant TenantCtx as Tenant Context Middleware
+    participant View as API View / Service
+    participant DB as PostgreSQL + RLS
+
+    Rep->>Nginx: طلب محمي (GET /api/v1/visits/) + Authorization: Bearer JWT
+    Nginx->>Auth: تمرير الطلب الآمن
+    Auth->>Auth: فك تشفير الـ JWT والتحقق من هوية المستخدم (user_id)
+    Auth->>TenantCtx: تمرير المستخدم المعتمد
+    TenantCtx->>DB: استعلام عضوية المنظمة (SELECT organization_id FROM memberships...)
+    TenantCtx->>DB: فتح معاملة وتنفيذ: SET LOCAL app.current_tenant_id = 'tenant-uuid';
+    TenantCtx->>View: تنفيذ منطق العرض داخل المعاملة الآمنة
+    View->>DB: SELECT * FROM visits WHERE ... (بدون تصفية يدوية للمستأجر)
+    Note over DB: محرك RLS يطبق شرط: organization_id = current_setting('app.current_tenant_id') تلقائياً
+    DB-->>View: إرجاع سجلات المنظمة الحالية حصراً
+    View-->>Rep: استجابة JSON 200 OK
+                </div>
+                <div class="diagram-caption">مخطط تسلسلي يوضح تعيين سياق المستأجر على مستوى جلسة قاعدة البيانات لمنع أي تسريب عرضي للبيانات</div>
+            </div>
+        </section>
+
+        <!-- Chapter 5 -->
+        <section class="chapter-section" id="ch5">
+            <h2 class="chapter-title">الفصل 5: معمارية المونوليث النمطي (Modular Monolith Architecture)</h2>
+            <p>
+                تم اعتماد نمط <strong>المونوليث النمطي (Modular Monolith)</strong> كخيار معماري رسمي للمرحلة الأولى من الإنتاج. يوفر هذا النمط مزايا التطوير السريع، بساطة النشر، وإمكانية تنفيذ معاملات البيانات الشاملة (ACID Transactions)، مع الحفاظ على حدود برمجية صارمة ومفصولة بين النطاقات تمهيداً لأي تحويل مستقبلي إلى خدمات مصغرة (Microservices) إذا دعت الحاجة التشغيلية الموثقة لذلك.
+            </p>
+
+            <h3 class="section-subtitle">5.1 الوحدات النمطية المعتمدة وحدود مسؤولياتها (Module Boundaries)</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الوحدة (Module)</th>
+                            <th>المسؤولية الوظيفية النطاقية</th>
+                            <th>الكيانات المملوكة حصراً (Owned Entities)</th>
+                            <th>ما يمنع منعه باتاً من التدخل فيه</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>tenancy</code></td>
+                            <td>إدارة المنظمات، المستأجرين، خطط الاشتراك وحالات الدفع.</td>
+                            <td>organizations, subscriptions, subscription_plans</td>
+                            <td>لا تتدخل في إدارة مستخدمي المنظمة أو بيانات الأعمال التشغيلية.</td>
+                        </tr>
+                        <tr>
+                            <td><code>identity</code></td>
+                            <td>المصادقة، إدارة المستخدمين، إدارة الجلسات ومفاتيح الوصول.</td>
+                            <td>users, user_sessions, api_tokens</td>
+                            <td>لا تتعامل مع المنطق المالي أو الهيكل الإداري للمنظمة.</td>
+                        </tr>
+                        <tr>
+                            <td><code>organization</code></td>
+                            <td>الهيكل التنظيمي، الفروع، الموظفين، الفرق، والأدوار والصلاحيات (RBAC).</td>
+                            <td>branches, employees, teams, roles, permissions</td>
+                            <td>لا تتدخل في بيانات الزيارات الميدانية أو المنتجات.</td>
+                        </tr>
+                        <tr>
+                            <td><code>customers</code></td>
+                            <td>إدارة المستشفيات والمراكز الطبية والصيدليات وجهات الاتصال.</td>
+                            <td>customers, customer_contacts, customer_addresses</td>
+                            <td>لا تسجل المعاملات المالية المباشرة أو أوامر البيع.</td>
+                        </tr>
+                        <tr>
+                            <td><code>territories</code></td>
+                            <td>التقسيمات الجغرافية، المضلعات الحدودية، وتعيين الفرق للمناطق.</td>
+                            <td>territories, territory_assignments</td>
+                            <td>لا تدير إحداثيات الزيارات الفردية.</td>
+                        </tr>
+                        <tr>
+                            <td><code>products</code></td>
+                            <td>كتالوج الأصناف، التصنيفات، قوائم الأسعار وشروط الخصومات.</td>
+                            <td>products, product_categories, price_lists</td>
+                            <td>لا تتدخل في أرصدة المخازن أو الأرصدة الحقيقية (شأن نظام ERP).</td>
+                        </tr>
+                        <tr>
+                            <td><code>visits</code></td>
+                            <td>إدارة خطط الزيارات، الـ Check-in الجغرافي، وسجلات الملاحظات والملحقات.</td>
+                            <td>visit_plans, visits, visit_attachments</td>
+                            <td>لا تصدر أوامر بيع ولا تدير تعيينات المستخدمين الإدارية.</td>
+                        </tr>
+                        <tr>
+                            <td><code>orders</code></td>
+                            <td>أوامر البيع، مسارات الاعتماد، وحساب الخصومات والقيم.</td>
+                            <td>orders, order_items, order_approvals</td>
+                            <td>لا تصدر فواتير ضريبية نهائية ولا تجري قيود محاسبية.</td>
+                        </tr>
+                        <tr>
+                            <td><code>performance</code></td>
+                            <td>المستهدفات البيعية (Targets) وتتبع أداء المندوبين ولوحات التحليلات.</td>
+                            <td>targets, target_assignments, performance_metrics</td>
+                            <td>لا تعدل على سجلات الزيارات أو الأوامر وتكتفي بالقراءة فقط.</td>
+                        </tr>
+                        <tr>
+                            <td><code>integrations</code></td>
+                            <td>الاتصال بأنظمة ERP الخارجية، إدارة Webhooks، وسجلات المزامنة.</td>
+                            <td>integration_endpoints, external_mappings, sync_logs</td>
+                            <td>لا تحتوي على منطق حساب الأسعار أو تسوية النزاعات الداخلية.</td>
+                        </tr>
+                        <tr>
+                            <td><code>audit</code></td>
+                            <td>تسجيل وتتبع كافة العمليات الحساسة والتغييرات الأمنية للنظام.</td>
+                            <td>audit_logs, security_events</td>
+                            <td>سجلات للقراءة والإضافة فقط (Immutable Append-Only).</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="section-subtitle">5.2 قواعد الاتصال بين الوحدات النمطية (Inter-Module Communication Rules)</h3>
+            <div class="callout callout-info">
+                <strong>مبادئ العزل المعماري الصارم للمونوليث النمطي:</strong>
+                <ol style="margin-top: 0.5rem;">
+                    <li><strong>عدم استيراد النماذج (No Cross-Module Model Imports):</strong> يُمنع منعاً باتاً على أي وحدة استيراد نماذج ORM الخاصة بوحدة أخرى مباشرة، ويجب التفاعل عبر واجهات الخدمات البرمجية (Service Layer Interface) أو عبر إطلاق الأحداث (Domain Events).</li>
+                    <li><strong>عزل المعاملات وقواعد البيانات:</strong> لا يجوز لأي استعلام SQL الانضمام (JOIN) عبر جداول وحدات نمطية مختلفة إلا في الحالات المعتمدة معمارياً وتوثيقها رسمياً.</li>
+                    <li><strong>الأحداث غير المتزامنة (Domain Events):</strong> عندما يكتمل اعتماد أمر بيع في وحدة <code>orders</code>، يتم إطلاق حدث <code>OrderApprovedEvent</code> ليتم استقباله ومعالجته عبر وحدة <code>integrations</code> دون اقتران صلب (Loose Coupling).</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Chapter 6 -->
+        <section class="chapter-section" id="ch6">
+            <h2 class="chapter-title">الفصل 6: المعمارية متعددة المستأجرين وأمن البيانات (Multi-Tenant Architecture & RLS)</h2>
+            <p>
+                تعتمد المنصة استراتيجية <strong>قاعدة البيانات المشتركة مع المخطط المشترك (Shared Database, Shared Schema)</strong> مع التمييز الصارم لكل سجل من خلال عمود <code>organization_id</code>. لضمان عدم تسريب البيانات تحت أي ظرف برمجي، تم فرض ميزة <strong>PostgreSQL Row-Level Security (RLS)</strong> على مستوى محرك قاعدة البيانات، مدعومة بمبدأ <code>FORCE ROW LEVEL SECURITY</code> لضمان سريان العزل حتى على مالكي الجداول.
+            </p>
+
+            <h3 class="section-subtitle">6.1 تطبيق سياسات عزل السجلات في PostgreSQL</h3>
+            <p>
+                يتم تحديد المستأجر الحالي في سياق كل اتصال بقاعدة البيانات باستخدام متغير الجلسة المؤقت <code>app.current_tenant_id</code> عبر الأمر <code>SET LOCAL</code> الذي ينتهي مفعوله تلقائياً بانتهاء المعاملة (Transaction Scope)، مما يقضي تماماً على خطر تسريب هوية المستأجر عند استخدام مجمعات الاتصال (Connection Poolers مثل PgBouncer).
+            </p>
+
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>PostgreSQL Multi-Tenancy RLS DDL & Policies</span>
+                    <button class="copy-btn" onclick="copyCode(this)">نسخ الكود</button>
+                </div>
+                <pre><code>-- 1. تفعيل سياسة أمن السجلات على جدول العملاء
+ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE customers FORCE ROW LEVEL SECURITY;
+
+-- 2. إنشاء الدالة المرجعية لاستخراج معرف المستأجر من سياق الجلسة الآمن
+CREATE OR REPLACE FUNCTION get_current_tenant_id() RETURNS UUID AS $$
+BEGIN
+    RETURN NULLIF(current_setting('app.current_tenant_id', true), '')::UUID;
+END;
+$$ LANGUAGE plpgsql STABLE;
+
+-- 3. تطبيق سياسة العزل الشاملة لجميع عمليات القراءة والتعديل والحذف والإضافة
+CREATE POLICY tenant_isolation_policy ON customers
+    FOR ALL
+    USING (organization_id = get_current_tenant_id())
+    WITH CHECK (organization_id = get_current_tenant_id());
+
+-- 4. مثال على تعيين سياق المستأجر داخل معاملة معزولة
+BEGIN;
+-- تعيين معرف المستأجر للاتصال الحالي (مستخرج بعد التحقق من الـ JWT)
+SELECT set_config('app.current_tenant_id', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', true);
+
+-- استعلام آمن - سيقوم محرك قاعدة البيانات بتصفية النتائج تلقائياً
+SELECT id, name, category FROM customers;
+COMMIT;</code></pre>
+            </div>
+
+            <div class="callout callout-danger">
+                <strong>تحذير أمني حرج [CRITICAL SECURITY MANDATE]:</strong>
+                يجب استخلاص معرف المستأجر <code>organization_id</code> حصراً من الرمز المميز الموثوق (Verified JWT) ومن عضوية المستخدم المسجلة على الخادم. يُحظر حظراً مطلقاً الثقة بأي قيمة <code>organization_id</code> مرسلة في ترويسة الطلب أو في جسم استدعاء API (Request Payload) من طرف العميل!
+            </div>
+
+            <h3 class="section-subtitle">6.2 إدارة وصول مديري المنصة (Super Admin & Break-Glass Access)</h3>
+            <p>
+                في سيناريوهات الدعم الفني الطارئ وتدقيق النظام من قبل مديري المنصة (Platform Super Admins)، يُمنع إلغاء RLS يدوياً. بدلاً من ذلك، يتم استخدام آلية <strong>Break-Glass Protocol</strong> حيث يتم تفعيل دور مخصص <code>platform_auditor</code> يتم تسجيل كافة استعلاماته في سجل تدقيق منفصل وغير قابل للتعديل مع بيان السبب ورقم تذكرة الدعم الفني.
+            </p>
+        </section>
+    \n
+        <!-- PART III -->
+        <div class="part-header" id="part3">
+            <h2>PART III: هندسة وقواعد البيانات (DATABASE ENGINEERING)</h2>
+            <p>التصميم العلائقي والمكاني المتقدم باستخدام PostgreSQL 16 وPostGIS، مخطط الكيانات والعلاقات (ERD)، قاموس البيانات الشامل، وأكواد DDL الإنتاجية مع استراتيجيات تحسين الأداء.</p>
+        </div>
+
+        <!-- Chapter 7 -->
+        <section class="chapter-section" id="ch7">
+            <h2 class="chapter-title">الفصل 7: معمارية قواعد البيانات الشاملة (PostgreSQL & PostGIS Architecture)</h2>
+            
+            <h3 class="section-subtitle">7.1 المبادئ التصميمية لقاعدة البيانات</h3>
+            <p>
+                تم تصميم قاعدة البيانات وفق أعلى المعايير الهندسية لبيئات SaaS للمؤسسات:
+            </p>
+            <ul>
+                <li><strong>المفاتيح الأساسية (UUIDv7 Strategy):</strong> استخدام معرفات فريدة عالمياً من نوع UUID (تحديداً المستندة إلى الوقت UUIDv7 أو UUIDv4 مع فهارس متسلسلة) لضمان سهولة توليد المعرفات محلياً على أجهزة المندوبين دون اتصال (Offline generation) ومنع التنبؤ بالسجلات.</li>
+                <li><strong>التطبيع الصارم والمفاتيح المركبة:</strong> تطبيق الدرجة الثالثة للتطبيع (3NF) مع استخدام المفاتيح الأجنبية المركبة <code>(id, organization_id)</code> لفرض تكامل البيانات المعزولة على مستوى المستأجر عبر القيود الصلبة (Composite Foreign Keys).</li>
+                <li><strong>دقة الحسابات المالية (Exact Decimal Precision):</strong> تجنب استخدام الفاصلة العائمة (FLOAT / REAL) نهائياً في الحقول المالية، واعتماد نوع <code>NUMERIC(14, 4)</code> لكافة الأسعار، الخصومات، والضرائب لمنع أخطاء التقريب المالي.</li>
+                <li><strong>سياسة الحذف المنطقي والتدقيق (Soft-Deletion & Audit Fields):</strong> تزويد كافة الجداول بحقول <code>created_at TIMESTAMPTZ</code>, <code>updated_at TIMESTAMPTZ</code>, <code>deleted_at TIMESTAMPTZ NULL</code> مع فهارس جزئية (Partial Indexes) تستثني السجلات المحذوفة.</li>
+            </ul>
+        </section>
+
+        <!-- Chapter 8 -->
+        <section class="chapter-section" id="ch8">
+            <h2 class="chapter-title">الفصل 8: مخطط الكيانات والعلاقات الشامل (Entity Relationship Diagram)</h2>
+            <p>
+                يمثل المخطط التالي العلاقات الهيكلية بين كافة كيانات نظام الـ CRM الطبي، مع توضيح صريح لتبعية المستأجر (Tenant Ownership) وتعددية العلاقات (Cardinality):
+            </p>
+            
+            <div class="diagram-box">
+                <span class="diagram-title">Complete Comprehensive Database ERD (Mermaid)</span>
+                <div class="mermaid">
+erDiagram
+    organizations ||--o{ branches : "تمتلك"
+    organizations ||--o{ subscriptions : "تشترك في"
+    organizations ||--o{ users : "تضم"
+    organizations ||--o{ territories : "تقسم إلى"
+    organizations ||--o{ customers : "تخدم"
+    organizations ||--o{ products : "تعرض"
+    organizations ||--o{ price_lists : "تحدد"
+    organizations ||--o{ visits : "تتابع"
+    organizations ||--o{ orders : "تسجل"
+
+    subscription_plans ||--o{ subscriptions : "تسند إلى"
+    users ||--o{ memberships : "ينتمي عبر"
+    organizations ||--o{ memberships : "تحتوي"
+    roles ||--o{ memberships : "تعين لـ"
+
+    branches ||--o{ employees : "يعمل بها"
+    teams ||--o{ employees : "تضم"
+    territories ||--o{ teams : "تسند إلى"
+    territories ||--o{ customers : "تغطي"
+
+    customers ||--o{ customer_contacts : "تحتوي"
+    customers ||--o{ customer_addresses : "تمتلك"
+    customers ||--o{ visits : "يستقبل"
+    customers ||--o{ orders : "يشتري"
+
+    employees ||--o{ visits : "ينفذ"
+    employees ||--o{ orders : "ينشئ"
+    employees ||--o{ target_assignments : "يكلف بـ"
+    targets ||--o{ target_assignments : "توزع عبر"
+
+    visit_plans ||--o{ visit_plan_items : "تتضمن"
+    visit_plan_items ||--o| visits : "ترتبط بـ"
+    visits ||--o{ visit_attachments : "ترفق مع"
+
+    products ||--o{ price_list_items : "تسعر بـ"
+    price_lists ||--o{ price_list_items : "تحتوي"
+    orders ||--o{ order_items : "تتكون من"
+    products ||--o{ order_items : "تباع كـ"
+    orders ||--o{ order_status_history : "تتتبع"
+                </div>
+                <div class="diagram-caption">مخطط ERD الشامل يوضح التبعية المركزية لكيان المستأجر وتكامل كيانات الميدان والمبيعات</div>
+            </div>
+        </section>
+
+        <!-- Chapter 9 -->
+        <section class="chapter-section" id="ch9">
+            <h2 class="chapter-title">الفصل 9: قاموس البيانات الشامل (Data Dictionary)</h2>
+            <p>
+                يوثق قاموس البيانات المخطط الهيكلي الكامل لجداول قاعدة بيانات MVP الأساسية مع توضيح القيود والأنواع والتحققات:
+            </p>
+
+            <h3 class="section-subtitle">جدول المنظمات (organizations) وجدول العملاء (customers)</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>اسم الحقل</th>
+                            <th>نوع البيانات</th>
+                            <th>القابلية للقيم الفارغة</th>
+                            <th>الافتراضي</th>
+                            <th>المفاتيح والفهارس</th>
+                            <th>الوصف وقواعد التحقق</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>id</code></td>
+                            <td>UUID</td>
+                            <td>NOT NULL</td>
+                            <td>gen_random_uuid()</td>
+                            <td>PRIMARY KEY</td>
+                            <td>المعرف الفريد للمستأجر عبر النظام بأكمله.</td>
+                        </tr>
+                        <tr>
+                            <td><code>name</code></td>
+                            <td>VARCHAR(150)</td>
+                            <td>NOT NULL</td>
+                            <td>-</td>
+                            <td>INDEX</td>
+                            <td>الاسم القانوني للمنظمة أو الشركة الطبية.</td>
+                        </tr>
+                        <tr>
+                            <td><code>slug</code></td>
+                            <td>VARCHAR(50)</td>
+                            <td>NOT NULL</td>
+                            <td>-</td>
+                            <td>UNIQUE</td>
+                            <td>المعرف الفريد لنطاق المنظمة الفرعي (Subdomain).</td>
+                        </tr>
+                        <tr>
+                            <td><code>is_active</code></td>
+                            <td>BOOLEAN</td>
+                            <td>NOT NULL</td>
+                            <td>true</td>
+                            <td>-</td>
+                            <td>حالة تفعيل حساب المنظمة والمستأجر.</td>
+                        </tr>
+                        <tr>
+                            <td><code>created_at</code></td>
+                            <td>TIMESTAMPTZ</td>
+                            <td>NOT NULL</td>
+                            <td>CURRENT_TIMESTAMP</td>
+                            <td>-</td>
+                            <td>تاريخ ووقت إنشاء المنظمة بنظام التوقيت العالمي UTC.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="section-subtitle">جدول زيارات المندوبين (visits) وموقع التحقق الجغرافي</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>اسم الحقل</th>
+                            <th>نوع البيانات</th>
+                            <th>القابلية للقيم الفارغة</th>
+                            <th>الافتراضي</th>
+                            <th>المفاتيح والفهارس</th>
+                            <th>الوصف وقواعد التحقق</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>id</code></td>
+                            <td>UUID</td>
+                            <td>NOT NULL</td>
+                            <td>gen_random_uuid()</td>
+                            <td>PRIMARY KEY</td>
+                            <td>معرف الزيارة الفريد (يولد على الموبايل في Offline).</td>
+                        </tr>
+                        <tr>
+                            <td><code>organization_id</code></td>
+                            <td>UUID</td>
+                            <td>NOT NULL</td>
+                            <td>-</td>
+                            <td>FK, INDEX, RLS</td>
+                            <td>معرف المنظمة المالكة للزيارة (عنصر التصفية الإجباري).</td>
+                        </tr>
+                        <tr>
+                            <td><code>customer_id</code></td>
+                            <td>UUID</td>
+                            <td>NOT NULL</td>
+                            <td>-</td>
+                            <td>FK, INDEX</td>
+                            <td>معرف العميل (صيدلية، عيادة، مستشفى) موضوع الزيارة.</td>
+                        </tr>
+                        <tr>
+                            <td><code>employee_id</code></td>
+                            <td>UUID</td>
+                            <td>NOT NULL</td>
+                            <td>-</td>
+                            <td>FK, INDEX</td>
+                            <td>معرف المندوب الطبي منفذ الزيارة الميدانية.</td>
+                        </tr>
+                        <tr>
+                            <td><code>checkin_location</code></td>
+                            <td>GEOGRAPHY(Point, 4326)</td>
+                            <td>NULL</td>
+                            <td>-</td>
+                            <td>GIST INDEX</td>
+                            <td>النقطة الجغرافية المسجلة لحظة تسجيل الحضور بالـ GPS.</td>
+                        </tr>
+                        <tr>
+                            <td><code>checkin_distance_meters</code></td>
+                            <td>NUMERIC(8, 2)</td>
+                            <td>NULL</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>المسافة المحسوبة بين المندوب وموقع العميل الرسمي بالأمتار.</td>
+                        </tr>
+                        <tr>
+                            <td><code>verification_status</code></td>
+                            <td>VARCHAR(30)</td>
+                            <td>NOT NULL</td>
+                            <td>'pending'</td>
+                            <td>INDEX</td>
+                            <td>حالة التحقق: valid, outside_geofence, low_accuracy, rejected.</td>
+                        </tr>
+                        <tr>
+                            <td><code>idempotency_key</code></td>
+                            <td>VARCHAR(64)</td>
+                            <td>NULL</td>
+                            <td>-</td>
+                            <td>UNIQUE(org, key)</td>
+                            <td>مفتاح منع تكرار معالجة المزامنة القادمة من الهاتف المحمول.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Chapter 10 -->
+        <section class="chapter-section" id="ch10">
+            <h2 class="chapter-title">الفصل 10: مخطط جداول الإنتاج DDL SQL (Production SQL Schema)</h2>
+            <p>
+                يتضمن الكود التالي تعريفات DDL الإنتاجية لجداول النظام الأساسية في PostgreSQL 16 مع دعم PostGIS والمفاتيح المركبة وسياسات RLS:
+            </p>
+
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>PostgreSQL DDL: Complete MVP Core Tables Schema</span>
+                    <button class="copy-btn" onclick="copyCode(this)">نسخ كود SQL</button>
+                </div>
+                <pre><code>-- تفعيل الامتدادات الضرورية
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "postgis";
+
+-- 1. جدول المنظمات والمستأجرين
+CREATE TABLE organizations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(150) NOT NULL,
+    slug VARCHAR(60) NOT NULL UNIQUE,
+    subscription_status VARCHAR(20) NOT NULL DEFAULT 'trial',
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ NULL
+);
+
+-- 2. جدول العملاء (صيدليات، مستشفيات، مراكز طبية)
+CREATE TABLE customers (
+    id UUID NOT NULL DEFAULT gen_random_uuid(),
+    organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE RESTRICT,
+    name VARCHAR(200) NOT NULL,
+    category VARCHAR(50) NOT NULL, -- pharmacy, clinic, hospital
+    classification VARCHAR(10) NOT NULL DEFAULT 'B', -- Class A, B, C
+    location GEOGRAPHY(Point, 4326) NULL, -- الموقع الجغرافي المعتمد
+    geofence_radius_meters INTEGER NOT NULL DEFAULT 150,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ NULL,
+    CONSTRAINT pk_customers PRIMARY KEY (id, organization_id)
+);
+
+-- فهارس جدول العملاء وفهرس PostGIS المكاني
+CREATE INDEX idx_customers_org ON customers(organization_id);
+CREATE INDEX idx_customers_location ON customers USING GIST(location);
+CREATE INDEX idx_customers_active ON customers(organization_id) WHERE deleted_at IS NULL;
+
+-- 3. جدول زيارات المندوبين الميدانية
+CREATE TABLE visits (
+    id UUID NOT NULL DEFAULT gen_random_uuid(),
+    organization_id UUID NOT NULL,
+    customer_id UUID NOT NULL,
+    employee_id UUID NOT NULL,
+    visit_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    status VARCHAR(30) NOT NULL DEFAULT 'draft', -- draft, completed, cancelled
+    checkin_time TIMESTAMPTZ NULL,
+    checkout_time TIMESTAMPTZ NULL,
+    checkin_location GEOGRAPHY(Point, 4326) NULL,
+    gps_accuracy_meters NUMERIC(6, 2) NULL,
+    checkin_distance_meters NUMERIC(8, 2) NULL,
+    verification_status VARCHAR(30) NOT NULL DEFAULT 'pending',
+    notes TEXT NULL,
+    idempotency_key VARCHAR(64) NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ NULL,
+    CONSTRAINT pk_visits PRIMARY KEY (id, organization_id),
+    CONSTRAINT fk_visits_customer FOREIGN KEY (customer_id, organization_id) 
+        REFERENCES customers(id, organization_id) ON DELETE RESTRICT,
+    CONSTRAINT uq_visits_idempotency UNIQUE (organization_id, idempotency_key)
+);
+
+CREATE INDEX idx_visits_org_emp ON visits(organization_id, employee_id, visit_date);
+CREATE INDEX idx_visits_checkin_geo ON visits USING GIST(checkin_location);
+
+-- تفعيل RLS الشامل
+ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE customers FORCE ROW LEVEL SECURITY;
+CREATE POLICY rls_customers_all ON customers FOR ALL
+    USING (organization_id = NULLIF(current_setting('app.current_tenant_id', true), '')::UUID)
+    WITH CHECK (organization_id = NULLIF(current_setting('app.current_tenant_id', true), '')::UUID);
+
+ALTER TABLE visits ENABLE ROW LEVEL SECURITY;
+ALTER TABLE visits FORCE ROW LEVEL SECURITY;
+CREATE POLICY rls_visits_all ON visits FOR ALL
+    USING (organization_id = NULLIF(current_setting('app.current_tenant_id', true), '')::UUID)
+    WITH CHECK (organization_id = NULLIF(current_setting('app.current_tenant_id', true), '')::UUID);</code></pre>
+            </div>
+        </section>
+
+        <!-- Chapter 11 -->
+        <section class="chapter-section" id="ch11">
+            <h2 class="chapter-title">الفصل 11: أداء واستعلامات قواعد البيانات الفائقة (Database Performance & Optimization)</h2>
+            <p>
+                لضمان تحقيق أهداف الأداء (p95 &lt; 200ms) حتى مع نمو البيانات إلى ملايين السجلات لكل مستأجر، تم وضع استراتيجيات ضبط محكمة:
+            </p>
+            <ul>
+                <li><strong>تجنب معضلة N+1 Queries:</strong> إلزام كافة استعلامات Django ORM باستخدام <code>select_related</code> للعلاقات الفردية و<code>prefetch_related</code> للعلاقات المتعددة.</li>
+                <li><strong>الفهارس الجزئية (Partial Indexes):</strong> إنشاء فهارس على السجلات النشطة فقط <code>WHERE deleted_at IS NULL</code> مما يقلل حجم الفهرس بنسبة تصل إلى 40% ويسرع استرجاع البيانات.</li>
+                <li><strong>تحليل الاستعلامات عبر EXPLAIN ANALYZE:</strong> التحقق من عدم حدوث مسح كامل للجدول (Seq Scan) في أي استعلام يحتوي على تصفية بالمستأجر، وضمان استخدام فهارس <code>Index Scan</code> أو <code>Bitmap Index Scan</code> المركبة.</li>
+            </ul>
+        </section>
+    \n
+        <!-- PART IV -->
+        <div class="part-header" id="part4">
+            <h2>PART IV: البيانات المكانية وإدارة الميدان (GIS & FIELD FORCE MANAGEMENT)</h2>
+            <p>معمارية الحوسبة المكانية PostGIS، التحقق من الحضور الجغرافي (GPS Check-in Proof of Presence)، ونموذج دورة حياة الزيارات الميدانية.</p>
+        </div>
+
+        <!-- Chapter 12 -->
+        <section class="chapter-section" id="ch12">
+            <h2 class="chapter-title">الفصل 12: هندسة البيانات المكانية ونظام PostGIS (GIS & PostGIS Engine)</h2>
+            
+            <h3 class="section-subtitle">12.1 التمثيل الجغرافي: Geography مقابل Geometry</h3>
+            <p>
+                تستخدم المنصة نوع البيانات <strong>GEOGRAPHY(Point, 4326)</strong> لتخزين مواقع العملاء وزيارات المندوبين. يعتمد هذا النوع على النموذج الإهليلجي لكوكب الأرض (WGS 84 / SRID 4326)، مما يتيح حساب المسافات الجيوديسية الحقيقية بالأمتار تلقائياً دون الحاجة إلى إجراء عمليات تحويل إسقاطية معقدة (Projections) عبر الدوال الرياضية.
+            </p>
+
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>PostGIS Geodesic Distance Calculation Query</span>
+                    <button class="copy-btn" onclick="copyCode(this)">نسخ الكود</button>
+                </div>
+                <pre><code>-- حساب المسافة الحقيقية بالأمتار بين موقع المندوب وموقع الصيدلية
+SELECT 
+    c.id AS customer_id,
+    c.name AS customer_name,
+    c.geofence_radius_meters,
+    ROUND(ST_Distance(c.location, ST_SetSRID(ST_MakePoint(31.2357, 30.0444), 4326)::geography)::numeric, 2) AS distance_meters,
+    ST_DWithin(c.location, ST_SetSRID(ST_MakePoint(31.2357, 30.0444), 4326)::geography, c.geofence_radius_meters) AS is_inside_geofence
+FROM customers c
+WHERE c.organization_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'
+  AND c.id = 'b1ffbc88-8b0a-3ef7-aa5c-5aa8bd270b22';</code></pre>
+            </div>
+        </section>
+
+        <!-- Chapter 13 -->
+        <section class="chapter-section" id="ch13">
+            <h2 class="chapter-title">الفصل 13: معمارية التحقق من الحضور الجغرافي (GPS Check-in Architecture)</h2>
+            <p>
+                تم تصميم نظام <strong>GPS Check-in</strong> ليعمل كـ <em>إشارة إثبات وبينة رقمية (Evidence Signal)</em> وليس كدليل قاطع ومطلق. يتم جمع إحداثيات الموقع حصراً عند لحظة بدء الزيارة بطلب صريح ومباشر من المستخدم (User-Initiated Trigger).
+            </p>
+
+            <div class="callout callout-warning">
+                <strong>حظر التتبع الخلفي المستمر (No Background Continuous GPS Tracking):</strong>
+                يُمنع منعاً باتاً تشغيل أي خدمة خلفية دائمة لتتبع المندوبين. يعتمد النظام مبدأ الحفاظ على الخصوصية والحد الأدنى من البيانات (Data Minimization) وترشيد استهلاك طاقة الهاتف، حيث يقتصر استدعاء نظام الملاحة على نافذة زمنية مدتها ثوانٍ معدودة عند الضغط على زر "تسجيل الحضور" (Check-in).
+            </div>
+
+            <h3 class="section-subtitle">13.1 حالات التحقق ومعالجة تزوير المواقع (Spoofing & Mock Locations)</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>حالة التحقق (Status)</th>
+                            <th>المعايير الهندسية والفيزيائية</th>
+                            <th>الإجراء النظامي المتبع</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge badge-example">valid</span></td>
+                            <td>دقة الـ GPS &le; 30 متراً، والمسافة &le; نصف قطر السياج الجغرافي المحدد للعميل.</td>
+                            <td>اعتماد الزيارة فورياً واحتسابها ضمن مؤشرات إنجاز المندوب.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge" style="background:#f59e0b; color:#fff;">outside_geofence</span></td>
+                            <td>المسافة &gt; نصف قطر السياج الجغرافي المسموح (مثلاً على بعد 400 متر).</td>
+                            <td>قبول الزيارة مع وسمها بإنذار عدم تطابق الموقع وتوجيهها للمراجعة الإدارية.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge" style="background:#6b7280; color:#fff;">low_accuracy</span></td>
+                            <td>قيمة دقة الـ GPS المسجلة من مجس الهاتف &gt; 100 متر (ضعف إشارة الأقمار الصناعية).</td>
+                            <td>طلب إعادة الفحص من المندوب في مكان مفتوح، أو قبولها مشروطة بتسجيل ملاحظة.</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge" style="background:#ef4444; color:#fff;">rejected</span></td>
+                            <td>اكتشاف تفعيل تطبيقات المواقع الوهمية (Mock Location Provider) في نظام التشغيل.</td>
+                            <td>رفض تسجيل العملية فورياً وتسجيل محاولة انتهاك أمني في سجل التدقيق.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="section-subtitle">13.2 مخطط تسلسل التحقق الجغرافي عند غياب الاتصال (Offline GPS Verification)</h3>
+            <div class="diagram-box">
+                <span class="diagram-title">Offline GPS Check-in & Timestamp Tampering Mitigation Flow</span>
+                <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor Rep as المندوب الطبي
+    participant App as تطبيق Flutter المحلي
+    participant SQLite as قاعدة Drift المحلية
+    participant Server as خادم Django الميداني
+
+    Rep->>App: النقر على "تسجيل الحضور بالزيارة"
+    App->>App: قراءة إحداثيات GPS ودقة المجس وتوقيت الجهاز وتوقيت Uptime
+    App->>App: التحقق من عدم تفعيل وضع Mock Location
+    App->>SQLite: حفظ الزيارة بحالة: pending_offline_verification
+    Note over App,SQLite: يتم توقيع السجل محلياً باستخدام مفتاح جلسة الجهاز
+    
+    Note over Rep,Server: بعد استعادة الاتصال بالإنترنت...
+    App->>Server: إرسال دفعة المزامنة (Check-in Payload + Timestamps)
+    Server->>Server: مقارنة توقيت الجهاز مع توقيت الخادم وحساب انجراف التوقيت (Clock Drift)
+    Server->>Server: تنفيذ ST_Distance عبر PostGIS وحساب المسافة الحقيقية
+    Server->>Server: تحديث الحالة إلى valid أو outside_geofence
+    Server-->>App: تأكيد استلام السجل والتحقق منه بنجاح
+                </div>
+                <div class="diagram-caption">مخطط تسلسل معالجة تسجيل الحضور بالـ GPS مع الحماية من التلاعب بتوقيت الهاتف المحمول</div>
+            </div>
+        </section>
+
+        <!-- Chapter 14 -->
+        <section class="chapter-section" id="ch14">
+            <h2 class="chapter-title">الفصل 14: إدارة دورة حياة الزيارات (Visit Lifecycle Management)</h2>
+            <p>
+                تمثل الزيارة الميدانية الوحدة التشغيلية الأساسية للمندوب الطبي. تنقسم الزيارات إلى <strong>زيارات مخططة (Planned Visits)</strong> ضمن جدول أسبوعي أو شهري معتمد من المشرف، و<strong>زيارات طارئة/غير مخططة (Unplanned Visits)</strong> لتغطية المستجدات الميدانية.
+            </p>
+
+            <div class="diagram-box">
+                <span class="diagram-title">Visit Lifecycle State Transition Diagram (Mermaid)</span>
+                <div class="mermaid">
+stateDiagram-v2
+    [*] --> Planned: جدولة الزيارة ضمن الخطة الأسبوعية
+    [*] --> Draft: إنشاء زيارة فورية غير مخططة (Unplanned)
+    
+    Planned --> InProgress: تسجيل الحضور بالـ GPS (Check-in)
+    Draft --> InProgress: تسجيل الحضور بالـ GPS (Check-in)
+    
+    InProgress --> Completed: إنهاء الزيارة + الملاحظات + تسجيل الخروج (Checkout)
+    InProgress --> Cancelled: إلغاء الزيارة مع ذكر السبب
+    Planned --> Cancelled: تعذر تنفيذ الزيارة المخططة
+    
+    Completed --> ApprovedBySupervisor: اعتماد المشرف الميداني
+    Completed --> FlaggedForAudit: إحالة للمراجعة (خارج النطاق الجغرافي)
+    FlaggedForAudit --> ApprovedBySupervisor: اعتماد يدوي بمبرر
+    FlaggedForAudit --> RejectedBySupervisor: رفض احتساب الزيارة
+    
+    ApprovedBySupervisor --> [*]
+    RejectedBySupervisor --> [*]
+    Cancelled --> [*]
+                </div>
+                <div class="diagram-caption">مخطط حالات دورة حياة الزيارة الميدانية من التخطيط وحتى الاعتماد الإداري النهائي</div>
+            </div>
+        </section>
+    \n
+        <!-- PART V -->
+        <div class="part-header" id="part5">
+            <h2>PART V: نطاق المبيعات وإدارة العلاقات (SALES & CRM DOMAIN)</h2>
+            <p>إدارة الشبكات الطبية والعملاء، نمذجة قوائم الأسعار وشروط الخصومات المعقدة، دورة حياة أوامر المبيعات الميدانية، ومحرك الأهداف والمؤشرات البيعية.</p>
+        </div>
+
+        <!-- Chapter 15 -->
+        <section class="chapter-section" id="ch15">
+            <h2 class="chapter-title">الفصل 15: إدارة العملاء والشبكات الطبية (Customer Management)</h2>
+            <p>
+                يستوعب النظام الطبي ثلاث فئات رئيسية من العملاء، لكل منها سماتها التشغيلية والتعاقدية:
+            </p>
+            <ul>
+                <li><strong>الصيدليات (Pharmacies):</strong> مراكز بيع مباشرة تتعامل بأوامر التوريد السريعة، وتتميز بكثافة زيارات عالية ونقاط سداد ائتمانية متقاربة.</li>
+                <li><strong>العيادات والمراكز الطبية (Clinics & Poly-clinics):</strong> تركز على الزيارات العلمية والتسويقية (Scientific Detailing) للمنتجات الدوائية، مع تسجيل التخصصات الطبية لكل طبيب.</li>
+                <li><strong>المستشفيات والجهات الحكومية (Hospitals):</strong> عملاء مؤسسيون يتعاملون عبر لجان المشتريات ومناقصات التوريد، وتتطلب إدارتها علاقات متعددة المستويات وجهات اتصال متعددة.</li>
+            </ul>
+        </section>
+
+        <!-- Chapter 16 -->
+        <section class="chapter-section" id="ch16">
+            <h2 class="chapter-title">الفصل 16: تسعير المنتجات وقوائم الأسعار المعقدة (Product & Price Management)</h2>
+            <p>
+                تم تصميم محرك التسعير ليدعم هياكل تجارية مرنة تلائم السوق الدوائي والمستلزمات الطبية:
+            </p>
+            <ul>
+                <li><strong>قوائم الأسعار المتعددة (Multi-Tier Price Lists):</strong> دعم قائمة أسعار عامة (Standard Price List)، قوائم أسعار خاصة بالصيدليات، وقوائم مخصصة للمستشفيات أو الموزعين الكبار.</li>
+                <li><strong>حدود الخصومات وسير الموافقات (Discount Matrix & Approval Thresholds):</strong> يُمنح المندوب صلاحية منح خصم تلقائي حتى نسبة معينة (مثلاً 5%). وإذا تراوح الخصم بين 5% و15%، يتطلب الطلب موافقة المشرف. أما إذا تجاوز 15%، فيُحال الطلب إلى مدير المبيعات التنفيذي.</li>
+                <li><strong>حفظ لقطات الأسعار (Price Snapshots):</strong> عند إدراج صنف في أمر البيع، يتم نسخ السعر الفعلي والخصم وقيمة الضريبة في جدول <code>order_items</code> كقيم ثابتة، لضمان عدم تأثر الطلبيات السابقة بأي تعديل مستقبلي على كتالوج الأسعار العام.</li>
+            </ul>
+
+            <div class="callout callout-info">
+                <strong>الحدود المعمارية لإدارة المخزون:</strong>
+                يقتصر دور نظام الـ CRM على استعراض مؤشر توفر الأصناف (Product Availability Reference) الوارد من نظام الـ ERP عبر واجهات المزامنة. تظل إدارة المستودعات، الجرد الفعلي، وأذونات الصرف والإضافة مسؤولية حصرية لنظام ERP الخارجي.
+            </div>
+        </section>
+
+        <!-- Chapter 17 -->
+        <section class="chapter-section" id="ch17">
+            <h2 class="chapter-title">الفصل 17: إدارة أوامر المبيعات (Sales Order Lifecycle)</h2>
+            <p>
+                يمتلك نظام Medical CRM دورة حياة أمر البيع كاملة بدءاً من إنشائه في الحقل وحتى اعتماده النهائي وتصديره لنظام الـ ERP:
+            </p>
+
+            <div class="diagram-box">
+                <span class="diagram-title">Sales Order State Machine & Approval Workflow</span>
+                <div class="mermaid">
+stateDiagram-v2
+    [*] --> Draft: إنشاء الطلب بواسطة المندوب (ميدانياً أو Offline)
+    Draft --> PendingApproval: إرسال الطلب (الخصم يتجاوز حد المندوب المسموح)
+    Draft --> Approved: إرسال الطلب (الخصم ضمن الحد المسموح تلقائياً)
+    
+    PendingApproval --> Approved: اعتماد المشرف / مدير المبيعات
+    PendingApproval --> Rejected: رفض الطلب مع ذكر سبب الرفض
+    
+    Approved --> ExportingToERP: استدعاء مهمة التصدير غير المتزامنة (Celery)
+    ExportingToERP --> Exported: نجاح التكامل مع ERP وتخزين External Order ID
+    ExportingToERP --> ExportFailed: فشل الاتصال مع ERP (محاولات إعادة مجدولة)
+    ExportFailed --> ExportingToERP: إعادة المحاولة التلقائية (Retry with Backoff)
+    
+    Rejected --> Draft: تعديل الأسعار وإعادة التقديم
+    Exported --> [*]
+                </div>
+                <div class="diagram-caption">مخطط حالات أمر البيع الميداني ومسار تدفق الموافقات والترحيل إلى نظام الـ ERP</div>
+            </div>
+        </section>
+
+        <!-- Chapter 18 -->
+        <section class="chapter-section" id="ch18">
+            <h2 class="chapter-title">الفصل 18: الأهداف ومؤشرات الأداء البيعي (Sales Targets & KPIs Engine)</h2>
+            <p>
+                يوفر النظام محركاً مرناً لاحتساب الأداء الميداني بناءً على نوعين من المستهدفات:
+            </p>
+            <ol>
+                <li><strong>المستهدفات السلوكية والتنفيذية (Activity KPIs):</strong> عدد الزيارات المنفذة، نسبة الالتزام بالخطة الأسبوعية (Plan Adherence %)، ومعدل الزيارات المطابقة للسياج الجغرافي (Geofence Compliance %).</li>
+                <li><strong>المستهدفات المالية والبيعية (Revenue Targets):</strong> القيمة المالية الإجمالية لأوامر البيع المعتمدة، عدد الطلبيات، ومعدل التحويل (Visit-to-Order Conversion Rate).</li>
+            </ol>
+
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>PostgreSQL Query: Monthly Field Force KPI Aggregation</span>
+                    <button class="copy-btn" onclick="copyCode(this)">نسخ الاستعلام</button>
+                </div>
+                <pre><code>-- تجميع مؤشرات أداء المندوبين لشهر محدد مع نسبة تحقيق المستهدف
+SELECT 
+    e.id AS employee_id,
+    u.full_name AS employee_name,
+    t.target_revenue,
+    COALESCE(SUM(o.net_total), 0) AS achieved_revenue,
+    ROUND((COALESCE(SUM(o.net_total), 0) / NULLIF(t.target_revenue, 0)) * 100, 2) AS revenue_achievement_pct,
+    COUNT(DISTINCT v.id) AS total_visits,
+    COUNT(DISTINCT CASE WHEN v.verification_status = 'valid' THEN v.id END) AS valid_gps_visits,
+    COUNT(DISTINCT o.id) AS total_orders,
+    ROUND((COUNT(DISTINCT o.id)::numeric / NULLIF(COUNT(DISTINCT v.id), 0)::numeric) * 100, 2) AS conversion_rate_pct
+FROM employees e
+JOIN users u ON e.user_id = u.id
+LEFT JOIN targets t ON t.employee_id = e.id 
+    AND t.period_start &lt;= CURRENT_DATE AND t.period_end &gt;= CURRENT_DATE
+LEFT JOIN visits v ON v.employee_id = e.id 
+    AND v.visit_date BETWEEN DATE_TRUNC('month', CURRENT_DATE) AND CURRENT_DATE
+    AND v.deleted_at IS NULL
+LEFT JOIN orders o ON o.employee_id = e.id 
+    AND o.status = 'approved'
+    AND o.created_at &gt;= DATE_TRUNC('month', CURRENT_DATE)
+WHERE e.organization_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'
+GROUP BY e.id, u.full_name, t.target_revenue;</code></pre>
+            </div>
+        </section>
+    \n
+        <!-- PART VI -->
+        <div class="part-header" id="part6">
+            <h2>PART VI: هندسة تطبيقات الهاتف المحمول (MOBILE ENGINEERING)</h2>
+            <p>معمارية تطبيق Flutter الميداني، محرك المزامنة التوافقية Offline-First باستخدام Drift/SQLite، وبروتوكولات أمان الأجهزة المحمولة.</p>
+        </div>
+
+        <!-- Chapter 19 -->
+        <section class="chapter-section" id="ch19">
+            <h2 class="chapter-title">الفصل 19: معمارية تطبيق Flutter للهواتف الذكية (Flutter Mobile Architecture)</h2>
+            <p>
+                تم بناء تطبيق المندوب الطبي باستخدام إطار عمل <strong>Flutter</strong> بنظام المعمارية المقسمة حسب الميزات (Feature-First Architecture) مع تطبيق مبادئ Clean Architecture وRiverpod لإدارة الحالة وحقن الاعتماديات:
+            </p>
+
+            <h3 class="section-subtitle">19.1 هيكلية المجلدات البرمجية المعتمدة (Proposed Flutter Project Structure)</h3>
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>Flutter Directory Structure (Feature-First & Clean Architecture)</span>
+                    <button class="copy-btn" onclick="copyCode(this)">نسخ الهيكل</button>
+                </div>
+                <pre><code>lib/
+├── core/
+│   ├── database/             # تعريف قاعدة بيانات Drift المحلية والجداول
+│   │   ├── app_database.dart
+│   │   ├── daos/
+│   │   └── tables/
+│   ├── network/              # عميل الشبكة الموثوق Dio + Interceptors
+│   │   ├── api_client.dart
+│   │   └── token_interceptor.dart
+│   ├── security/             # التخزين الآمن وتشفير المفاتيح
+│   │   └── secure_vault.dart # FlutterSecureStorage wrapper
+│   ├── sync/                 # محرك إدارة طوابير المزامنة
+│   │   ├── outbox_manager.dart
+│   │   └── sync_coordinator.dart
+│   └── theme/                # نظام التصميم والخطوط والألوان
+├── features/
+│   ├── auth/                 # وحدة تسجيل الدخول وإدارة الجلسات
+│   ├── visits/               # ميزة الزيارات وتسجيل الحضور بالـ GPS
+│   │   ├── data/
+│   │   │   ├── datasources/  # Local (Drift) & Remote (API)
+│   │   │   └── repositories/ # VisitRepositoryImpl
+│   │   ├── domain/
+│   │   │   ├── entities/     # VisitEntity, GeoLocation
+│   │   │   └── usecases/     # CheckInVisitUseCase, SyncVisitsUseCase
+│   │   └── presentation/     # ويدجت الشاشات والـ Providers
+│   ├── customers/            # دليل العملاء وعرض الخرائط المحلية
+│   ├── orders/               # إنشاء أوامر البيع وحساب الخصومات
+│   └── profile/              # بيانات المندوب ومؤشرات إنجاز الأهداف
+└── main.dart</code></pre>
+            </div>
+        </section>
+
+        <!-- Chapter 20 -->
+        <section class="chapter-section" id="ch20">
+            <h2 class="chapter-title">الفصل 20: معمارية Offline-First والمزامنة التوافقية (Offline-First Engine)</h2>
+            <p>
+                نظراً لعمل المندوبين المتكرر في بيئات تفتقر إلى تغطية الاتصال بالإنترنت (مثل أقبية المستشفيات أو المناطق الريفية)، صُمم التطبيق ليعمل بمبدأ <strong>Offline-First المطلق</strong> باستخدام قاعدة بيانات <strong>Drift (SQLite)</strong> ونمط <strong>صندوق الإرسال (Outbox Pattern)</strong>.
+            </p>
+
+            <h3 class="section-subtitle">20.1 سياسات حل التعارض المخصصة لكل كيان (Entity-Specific Conflict Policies)</h3>
+            <div class="callout callout-warning">
+                <strong>حظر مبدأ "آخر كاتب يفوز" العام (No Generic Last-Write-Wins):</strong>
+                يُعد تطبيق سياسة Last-Write-Wins العمياء كارثياً في الأنظمة المالية والطبية. لذلك تم وضع سياسة تعارض دقيقة لكل كيان على حدة:
+                <ul style="margin-top: 0.5rem;">
+                    <li><strong>الزيارات الميدانية (Visits):</strong> كيان إضافة فقط (Append-Only). كل زيارة تولد بمعرف UUID مستقل ومفتاح Idempotency Key، فلا مجال لحدوث تعارض كتابة فوق سجل موجود.</li>
+                    <li><strong>أوامر البيع (Sales Orders):</strong> في حال تم اعتماد الطلب أو تعديله من الإدارة بينما حاول المندوب تعديله Offline، تُرفض العملية المحلية ويعاد الطلب للمندوب مع إشعار بالتعارض (Conflict Flag) وإبقائه كمسودة محلية.</li>
+                    <li><strong>بيانات العملاء والأسعار (Catalogs & Prices):</strong> سياسة "الخادم هو المرجع المطلق" (Server Authority Wins). يتم تحديث بيانات الأسعار وقوائم المنتجات محلياً عبر المزامنة المسحوبة (Pull Sync) المستندة إلى مؤشر التغيير (Cursor / Updated-At).</li>
+                </ul>
+            </div>
+
+            <h3 class="section-subtitle">20.2 مخطط تسلسل المزامنة وحالات السجلات المحلية (Sync State Diagram)</h3>
+            <div class="diagram-box">
+                <span class="diagram-title">Offline Outbox Synchronization Sequence (Mermaid)</span>
+                <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor Rep as المندوب
+    participant UI as واجهة التطبيق
+    participant Drift as قاعدة Drift المحلية
+    participant Outbox as Outbox Queue
+    participant Server as خادم Django API
+
+    Rep->>UI: إتمام أمر بيع أو زيارة
+    UI->>Drift: حفظ الكيان محلياً بحالة: local_draft
+    UI->>Outbox: إضافة العملية لجدول outbox_events مع توليد idempotency_key
+    UI-->>Rep: إظهار رسالة النجاح فورياً (0ms Delay)
+
+    loop عند توفر اتصال شبكي مستقر
+        Outbox->>Server: إرسال دفعة العمليات POST /api/v1/sync/push/
+        alt نجاح المعالجة على الخادم
+            Server-->>Outbox: استجابة 200 تم الحفظ + المعرفات المؤكدة
+            Outbox->>Drift: تحديث حالة الكيان إلى: synced
+            Outbox->>Outbox: حذف العملية من صندوق الإرسال
+        else تعارض في البيانات (409 Conflict)
+            Server-->>Outbox: استجابة 409 + بيانات النزاع
+            Outbox->>Drift: تحديث حالة الكيان إلى: conflict
+            Outbox->>UI: إشعار المندوب بمراجعة الطلب يدوياً
+        end
+    end
+                </div>
+                <div class="diagram-caption">دورة تدفق البيانات عبر نمط Outbox والمزامنة غير المتزامنة مع معالجة حالات التعارض</div>
+            </div>
+        </section>
+
+        <!-- Chapter 21 -->
+        <section class="chapter-section" id="ch21">
+            <h2 class="chapter-title">الفصل 21: أمن الأجهزة المحمولة وتشفير التخزين (Mobile Security & Local Protection)</h2>
+            <p>
+                نظراً لحساسية بيانات العملاء وسجلات المبيعات المخزنة على أجهزة المندوبين، تم تطبيق تدابير حماية أمنية مشددة:
+            </p>
+            <ul>
+                <li><strong>التخزين المشفر للمفاتيح:</strong> حفظ رموز الوصول (Access & Refresh Tokens) داخل مساحات التخزين المشفرة الخاصة بنظام التشغيل حصراً (Keystore في Android و Keychain في iOS) عبر <code>FlutterSecureStorage</code>.</li>
+                <li><strong>تشفير قاعدة البيانات المحلية (SQLCipher):</strong> تشفير ملف SQLite بالكامل باستخدام خوارزمية AES-256، مع اشتقاق مفتاح التشفير من هوية الجهاز وجلسة المستخدم المصادق عليها.</li>
+                <li><strong>فحص نزاهة الجهاز (Root & Jailbreak Detection):</strong> التحقق الدوري من عدم كسر حماية نظام التشغيل أو تشغيل بيئات المحاكاة غير المصرح بها، وتعطيل التخزين المؤقت في حال اكتشاف مخاطر أمنية.</li>
+                <li><strong>مسح البيانات عن بعد (Remote Wipe Capability):</strong> قدرة مدير المنظومة على إرسال أمر مسح فوري لكافة البيانات المحلية المخزنة على جهاز أي مندوب يتم إنهاء خدماته بمجرد اتصاله بالشبكة.</li>
+            </ul>
+        </section>
+    \n
+        <!-- PART VII -->
+        <div class="part-header" id="part7">
+            <h2>PART VII: هندسة واجهات الويب ولوحة التحكم (WEB ENGINEERING)</h2>
+            <p>معمارية لوحة التحكم الإدارية المبنية بـ SvelteKit، نظام التصميم (Design System)، التوجيه ودعم ثنائية الاتجاه RTL/LTR، ونماذج الشاشات الهندسية.</p>
+        </div>
+
+        <!-- Chapter 22 -->
+        <section class="chapter-section" id="ch22">
+            <h2 class="chapter-title">الفصل 22: معمارية لوحة التحكم بنظام SvelteKit (SvelteKit Web Architecture)</h2>
+            <p>
+                تم اختيار <strong>SvelteKit</strong> كإطار عمل رسمي لتطوير لوحة تحكم الويب لما يوفره من سرعة فائقة في معالجة البيانات، عدم وجود Virtual DOM عبء إضافي، وبنية توجيه قوية مستندة إلى نظام الملفات (File-based Routing).
+            </p>
+
+            <h3 class="section-subtitle">22.1 هيكلية مسارات المشروع ونظام التحميل (Project Directory Structure)</h3>
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>SvelteKit Routes & Components Directory Structure</span>
+                    <button class="copy-btn" onclick="copyCode(this)">نسخ الهيكل</button>
+                </div>
+                <pre><code>src/
+├── lib/
+│   ├── api/                  # عميل استدعاء Django REST API المشفر
+│   │   └── client.ts
+│   ├── components/           # عناصر واجهة المستخدم القابلة لإعادة الاستخدام
+│   │   ├── charts/           # الرسوم البيانية التفاعلية ومؤشرات KPI
+│   │   ├── forms/            # نماذج الإدخال مع التحقق Zod
+│   │   ├── maps/             # مكونات خرائط Leaflet / OpenStreetMap
+│   │   └── tables/           # جداول البيانات الفائقة مع الفرز والتصفية
+│   ├── stores/               # حالات الواجهة المخزنة (Auth, Tenant, Theme)
+│   └── types/                # تعريفات TypeScript المطابقة لكيانات المونوليث
+└── routes/
+    ├── (auth)/               # مسارات المصادقة وتسجيل الدخول
+    │   └── login/
+    │       ├── +page.server.ts
+    │       └── +page.svelte
+    └── (dashboard)/          # مسارات لوحة التحكم المحمية
+        ├── +layout.server.ts # التحقق من هوية المستأجر وصلاحيات المستخدم
+        ├── +layout.svelte    # الهيكل العام (الشريط الجانبي، الترويسة)
+        ├── +page.svelte      # لوحة المؤشرات الرئيسية
+        ├── customers/        # إدارة شبكة العملاء والمواقع الجغرافية
+        ├── visits/           # متابعة خطط الزيارات واعتماد المشرفين
+        ├── orders/           # أوامر البيع ومسار موافقات الخصومات
+        ├── territories/      # رسم المناطق الجغرافية على الخريطة
+        └── settings/         # إعدادات المنظمة، الفروع، والمستخدمين</code></pre>
+            </div>
+        </section>
+
+        <!-- Chapter 23 -->
+        <section class="chapter-section" id="ch23">
+            <h2 class="chapter-title">الفصل 23: نظام التصميم وواجهات المستخدم (UI/UX System & Wireframes)</h2>
+            <p>
+                يعتمد نظام التصميم لوحة ألوان مستوحاة من البيئات البرمجية الاحترافية والتقنية الطبية، مع التركيز التام على التباين العالي وسهولة القراءة في البيئات الميدانية والمكتبية:
+            </p>
+            <ul>
+                <li><strong>اللون الأساسي (Primary Navy):</strong> <code>#0f172a</code> لإنشاء خلفيات هادئة ومريحة للبصر.</li>
+                <li><strong>لون الإبراز الطبي (Medical Cyan / Teal):</strong> <code>#0d9488</code> للإشارة إلى المؤشرات الإيجابية والتأكيدات.</li>
+                <li><strong>لون التفاعل والأزرار (Action Blue):</strong> <code>#2563eb</code> للأزرار والروابط التفاعلية.</li>
+                <li><strong>دعم كامل لثنائية الاتجاه (Bidirectional Layout RTL/LTR):</strong> تبديل تلقائي كامل لاتجاه العناصر والجداول والمحاذاة بناءً على لغة الجلسة دون تكسير للتصميم.</li>
+            </ul>
+
+            <h3 class="section-subtitle">23.1 نموذج الواجهة الهيكلية للوحة المتابعة والزيارات (Conceptual Wireframe)</h3>
+            <div class="callout callout-info" style="direction: ltr; text-align: left; font-family: var(--font-code);">
+                <pre style="background: transparent; color: inherit; padding: 0;">
++----------------------------------------------------------------------------------------------------+
+|  [Medical CRM SaaS]  |  Tenant: BioPharma Egypt  |  User: Sales Director  | [Notifications] [User] |
++----------------------------------------------------------------------------------------------------+
+| [Sidebar]       |  Dashboard Overview &gt; Field Force Live Operations                               |
+|                 +----------------------------------------------------------------------------------+
+| - Dashboard     |  [ KPI: Daily Visits ]  |  [ KPI: Geofence Compliance ]  |  [ KPI: Daily Orders ]|
+| - Customers     |        142 / 160        |            94.5%               |      EGP 485,200      |
+| - Visits (Plan) +----------------------------------------------------------------------------------+
+| - Sales Orders  | [ Map View: Territorial Live Visits ]      | [ Pending Approvals Queue ]         |
+| - Territories   |  +---------------------------------------+ | - Order #4892 (Dr. Ali Clinic)      |
+| - Performance   |  |   [o] Cairo North Territory           | |   Discount: 18% (Exceeds Limit)     |
+| - ERP Sync Logs |  |       * Dr. Ahmed Clinic (Check-in)   | |   [Approve] [Reject]                |
+| - Org Settings  |  |       * El-Ezaby Pharmacy (Completed) | | - Order #4893 (Al-Amal Hospital)    |
+|                 |  |       ! Cure Clinic (Outside Geofence)| |   [Approve] [Reject]                |
+|                 |  +---------------------------------------+ +-------------------------------------+
++----------------------------------------------------------------------------------------------------+
+                </pre>
+            </div>
+        </section>
+    \n
+        <!-- PART VIII -->
+        <div class="part-header" id="part8">
+            <h2>PART VIII: واجهات البرمجة والتكامل المؤسسي (API & INTEGRATIONS)</h2>
+            <p>معمارية واجهات RESTful API وOpenAPI 3، بروتوكولات التكامل المحكم مع أنظمة تخطيط الموارد ERP، وبنية الرسائل والإشعارات الحدثية.</p>
+        </div>
+
+        <!-- Chapter 24 -->
+        <section class="chapter-section" id="ch24">
+            <h2 class="chapter-title">الفصل 24: معمارية واجهات REST API وOpenAPI (REST API Architecture)</h2>
+            <p>
+                تلتزم كافة واجهات البرمجة بمعايير RESTful الصارمة، مع توحيد هياكل الاستجابة والأخطاء (Standardized JSON Envelopes)، ودعم التصفية المتقدمة والتنقل بالأرقام الصفحية (Cursor-based and Page-based Pagination):
+            </p>
+
+            <h3 class="section-subtitle">24.1 توثيق نقاط النهاية الأساسية للنسخة الأولية (MVP API Endpoints)</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الطريقة (Method)</th>
+                            <th>نقطة النهاية (URL)</th>
+                            <th>الوظيفة والهدف</th>
+                            <th>الدور والأذونات المطلوبة</th>
+                            <th>رموز الاستجابة المتوقعة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>POST</code></td>
+                            <td><code>/api/v1/auth/token/</code></td>
+                            <td>تسجيل الدخول وإصدار رمز JWT مشفر يحمل معرف المستخدم.</td>
+                            <td>Public (مفتوح للجميع)</td>
+                            <td><code>200 OK</code>, <code>401 Unauthorized</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>GET</code></td>
+                            <td><code>/api/v1/customers/</code></td>
+                            <td>استرجاع قائمة العملاء التابعين للمستأجر مع إمكانية التصفية بالموقع.</td>
+                            <td><code>customers.view</code></td>
+                            <td><code>200 OK</code>, <code>403 Forbidden</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>POST</code></td>
+                            <td><code>/api/v1/visits/check-in/</code></td>
+                            <td>تسجيل الحضور الجغرافي للزيارة والتحقق من السياج الجغرافي.</td>
+                            <td><code>visits.create</code></td>
+                            <td><code>201 Created</code>, <code>422 Unprocessable</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>POST</code></td>
+                            <td><code>/api/v1/orders/</code></td>
+                            <td>إنشاء أمر بيع جديد وتوجيهه للموافقة إذا تطلب الأمر.</td>
+                            <td><code>orders.create</code></td>
+                            <td><code>201 Created</code>, <code>400 Bad Request</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>POST</code></td>
+                            <td><code>/api/v1/sync/push/</code></td>
+                            <td>دفع مجموعة المعاملات المسجلة بدون اتصال عبر تطبيق الهاتف.</td>
+                            <td><code>sync.push</code></td>
+                            <td><code>200 OK</code>, <code>409 Conflict</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>POST</code></td>
+                            <td><code>/api/v1/integrations/webhooks/erp/</code></td>
+                            <td>استقبال تحديثات الفواتير وأرقام المستندات من نظام ERP.</td>
+                            <td>ERP Integration Secret</td>
+                            <td><code>200 OK</code>, <code>401 Invalid Signature</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="section-subtitle">24.2 نموذج حمولة تسجيل الحضور الجغرافي (Check-in JSON Payload)</h3>
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>POST /api/v1/visits/check-in/ Request & Response Payload</span>
+                    <button class="copy-btn" onclick="copyCode(this)">نسخ JSON</button>
+                </div>
+                <pre><code>// الطلب المرسل من تطبيق الهاتف (Request Payload)
+{
+  "visit_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+  "customer_id": "b1ffbc88-8b0a-3ef7-aa5c-5aa8bd270b22",
+  "client_timestamp": "2026-11-07T14:32:00.000Z",
+  "coordinates": {
+    "latitude": 30.044420,
+    "longitude": 31.235712,
+    "accuracy_meters": 12.5
+  },
+  "device_metadata": {
+    "is_mock_location": false,
+    "app_version": "1.0.4",
+    "device_model": "Samsung Galaxy A54"
+  },
+  "idempotency_key": "chk_9a8b7c6d-5e4f-3a2b-1c0d-e9f8a7b6c5d4"
+}
+
+// الاستجابة المعتمدة من الخادم (Response Payload - 201 Created)
+{
+  "status": "success",
+  "data": {
+    "visit_id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+    "verification_status": "valid",
+    "calculated_distance_meters": 24.30,
+    "geofence_threshold_meters": 150.00,
+    "server_timestamp": "2026-11-07T14:32:01.120Z",
+    "is_within_geofence": true
+  }
+}</code></pre>
+            </div>
+        </section>
+
+        <!-- Chapter 25 -->
+        <section class="chapter-section" id="ch25">
+            <h2 class="chapter-title">الفصل 25: طبقة التكامل مع أنظمة تخطيط الموارد ERP (ERP Integration Layer)</h2>
+            <p>
+                تم عزل مهام التكامل مع أنظمة ERP في طبقة وسيطة مخصصة (Integration Gateway) تعتمد على <strong>الربط بمعرفات خارجية (External Mappings)</strong> وبروتوكول التحقق المشفر باستخدام <strong>HMAC-SHA256</strong>:
+            </p>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>مجال العمل (Domain)</th>
+                            <th>النظام المالك للمصدر (Source of Truth)</th>
+                            <th>طبيعة تدفق البيانات والتكامل (Data Flow)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>العملاء والجهات الطبية</strong></td>
+                            <td>Medical CRM</td>
+                            <td>تصدير العملاء الجدد من الـ CRM إلى ERP لفتح حساب دفتر الأستاذ للعميل.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>أوامر البيع الميدانية</strong></td>
+                            <td>Medical CRM</td>
+                            <td>ترحيل أمر البيع بعد اعتماده النهائي من المشرفين إلى ERP لمعالجته مستودعياً.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>الأرصدة ومؤشرات التوفر</strong></td>
+                            <td>ERP System</td>
+                            <td>تحديث غير متزامن دوري لمؤشر توفر الأصناف لعرضه للمندوب كمرجع فقط.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>الفواتير الضريبية الرسمية</strong></td>
+                            <td>ERP System</td>
+                            <td>إصدار الفاتورة الضريبية النهائية وتحديث رقم الفاتورة (Invoice Number) في الـ CRM عبر Webhook.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="section-subtitle">25.1 الحماية من هجمات الإعادة وإعادة المحاولة (HMAC & Replay Protection)</h3>
+            <p>
+                تتضمن كافة طلبات الـ Webhooks الواردة من أو الصادرة إلى أنظمة ERP ترويسة <code>X-Signature-SHA256</code> وترويسة التوقيت <code>X-Timestamp</code>. يتم رفض أي طلب يتجاوز فارق توقيته 300 ثانية عن توقيت الخادم، مع تخزين معرف الرسالة <code>X-Message-ID</code> في ذاكرة Redis المؤقتة لمدة 24 ساعة لمنع تكرار تنفيذ المعاملة المالية.
+            </p>
+        </section>
+
+        <!-- Chapter 26 -->
+        <section class="chapter-section" id="ch26">
+            <h2 class="chapter-title">الفصل 26: معمارية الإشعارات والرسائل التنبيهية (Notification Architecture)</h2>
+            <p>
+                تتبنى المنصة معمارية موجهة بالأحداث (Event-Driven Architecture) لبث الإشعارات إلى المستخدمين عبر ثلاث قنوات رئيسية:
+            </p>
+            <ul>
+                <li><strong>إشعارات الهواتف الفورية (Push Notifications):</strong> عبر خدمة Firebase Cloud Messaging (FCM) لتنبيه المندوبين بتعديلات خطط الزيارات أو اعتماد/رفض طلبيات البيع.</li>
+                <li><strong>إشعارات لوحة التحكم اللحظية (In-App Notifications):</strong> تظهر للمشرفين والمديرين عبر بروتوكول Server-Sent Events (SSE) أو WebSockets.</li>
+                <li><strong>رسائل البريد الإلكتروني (Transactional Email):</strong> للتقارير الدورية وتأكيدات التسجيل وإشعارات التنبيه الأمني الحرجة.</li>
+            </ul>
+        </section>
+    \n
+        <!-- PART IX -->
+        <div class="part-header" id="part9">
+            <h2>PART IX: البنية التحتية والعمليات السحابية (DEVOPS & CLOUD INFRASTRUCTURE)</h2>
+            <p>معمارية الحاويات Docker، النشر السحابي، الرصد والملاحظة الشاملة (Observability)، واستراتيجيات النسخ الاحتياطي والتعافي من الكوارث (Disaster Recovery).</p>
+        </div>
+
+        <!-- Chapter 27 -->
+        <section class="chapter-section" id="ch27">
+            <h2 class="chapter-title">الفصل 27: معمارية الحاويات (Docker & Container Architecture)</h2>
+            <p>
+                تم تصميم بيئة التشغيل لتعتمد كلياً على الحاويات المعيارية (Docker Containers)، مما يضمن تطابق بيئات التطوير والاختبار والإنتاج (Dev/Prod Parity).
+            </p>
+
+            <h3 class="section-subtitle">27.1 ملف Docker Compose لبيئة التطوير والإنتاج المصغرة</h3>
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>docker-compose.yml (Core Production-Ready Stack)</span>
+                    <button class="copy-btn" onclick="copyCode(this)">نسخ الملف</button>
+                </div>
+                <pre><code>version: '3.8'
+
+services:
+  db:
+    image: postgis/postgis:16-3.4-alpine
+    container_name: medical_crm_db
+    environment:
+      POSTGRES_DB: medical_crm_prod
+      POSTGRES_USER: crm_admin
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - internal_net
+    restart: always
+
+  redis:
+    image: redis:7-alpine
+    container_name: medical_crm_redis
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    networks:
+      - internal_net
+    restart: always
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: medical_crm_api
+    command: gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 4 --threads 2
+    environment:
+      - DJANGO_SETTINGS_MODULE=core.settings.production
+    depends_on:
+      - db
+      - redis
+    networks:
+      - internal_net
+    restart: always
+
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: medical_crm_worker
+    command: celery -A core worker -l INFO -c 4
+    depends_on:
+      - backend
+      - redis
+    networks:
+      - internal_net
+    restart: always
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: medical_crm_web
+    networks:
+      - internal_net
+    restart: always
+
+  proxy:
+    image: nginx:alpine
+    container_name: medical_crm_proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/ssl/certs:ro
+    depends_on:
+      - backend
+      - web
+    networks:
+      - internal_net
+    restart: always
+
+networks:
+  internal_net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:</code></pre>
+            </div>
+        </section>
+
+        <!-- Chapter 28 -->
+        <section class="chapter-section" id="ch28">
+            <h2 class="chapter-title">الفصل 28: هندسة النشر السحابي والبنية التحتية (Cloud Deployment Architecture)</h2>
+            <p>
+                تدعم المنصة النشر على الخوادم الافتراضية الخاصة (VPS مثل Hetzner أو DigitalOcean) أو البنى التحتية السحابية المدارة (AWS / GCP) عبر ممارسات العزل الشبكي، تشفير TLS 1.3 الإجباري، وإدارة الأسرار عبر HashiCorp Vault أو Docker Secrets.
+            </p>
+        </section>
+
+        <!-- Chapter 29 -->
+        <section class="chapter-section" id="ch29">
+            <h2 class="chapter-title">الفصل 29: الرصد والملاحظة الشاملة (Observability & Monitoring)</h2>
+            <p>
+                تم بناء مثلث الرصد الهندسي (Logs, Metrics, Traces):
+            </p>
+            <ul>
+                <li><strong>التتبع الموزع (Distributed Tracing):</strong> استخدام OpenTelemetry لتتبع زمن معالجة الطلبات عبر طبقات Nginx و Django وقواعد البيانات.</li>
+                <li><strong>تتبع الأخطاء البرمجية:</strong> ربط النظام مع Sentry لالتقاط الاستثناءات الحقلية الفورية من الويب وتطبيقات الهواتف مع تجريد البيانات الحساسة (PII Sanitization).</li>
+                <li><strong>مراقبة المقاييس والأداء:</strong> استخدام Prometheus و Grafana لمراقبة معدل استهلاك الذاكرة، طوابير Celery، وعدد اتصالات قاعدة البيانات النشطة.</li>
+            </ul>
+        </section>
+
+        <!-- Chapter 30 -->
+        <section class="chapter-section" id="ch30">
+            <h2 class="chapter-title">الفصل 30: استراتيجيات النسخ الاحتياطي والتعافي (Disaster Recovery & Backup)</h2>
+            <div class="callout callout-info">
+                <strong>خطة التعافي من الكوارث المعتمدة (DR Plan):</strong>
+                <ul>
+                    <li><strong>النسخ الاحتياطي اللحظي:</strong> أرشفة مستمرة لملفات سجلات المعاملات (Write-Ahead Logs - WAL) في خادم تخزين كائني S3 منفصل جغرافياً لدعم التعافي إلى نقطة زمنية محددة (Point-in-Time Recovery - PITR).</li>
+                    <li><strong>النسخ الدفعي اليومي:</strong> تنفيذ <code>pg_dump</code> مشفر بـ GPG يومياً في تمام الساعة 02:00 صباحاً بالتوقيت العالمي وحفظه لمدة 30 يوماً.</li>
+                    <li><strong>مؤشرات التعافي المعتمدة:</strong> RPO &le; 5 دقائق (أقصى فقدان محتمل للبيانات)، RTO &le; 30 دقيقة (الزمن الأقصى لاستعادة كامل خدمات المنصة).</li>
+                </ul>
+            </div>
+        </section>
+    \n
+        <!-- PART X -->
+        <div class="part-header" id="part10">
+            <h2>PART X: الأمن السيبراني وجودة البرمجيات (SECURITY & QUALITY ENGINEERING)</h2>
+            <p>معمارية الأمن السيبراني ونمذجة التهديدات (OWASP Threat Modeling)، استراتيجيات الاختبار الشامل، وخطوط التكامل والنشر المستمر (CI/CD Pipelines).</p>
+        </div>
+
+        <!-- Chapter 31 -->
+        <section class="chapter-section" id="ch31">
+            <h2 class="chapter-title">الفصل 31: معمارية الأمن السيبراني ونمذجة التهديدات (Cybersecurity Architecture)</h2>
+            <p>
+                تم تصميم النموذج الأمني للمنصة بناءً على معايير OWASP Top 10 و STRIDE Threat Modeling لضمان الحماية متعددة الطبقات (Defense in Depth):
+            </p>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>نوع التهديد الأمني</th>
+                            <th>نقطة الضعف المحتملة</th>
+                            <th>آلية الحماية المعمارية المعتمدة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>عزل المستأجر (BOLA / IDOR)</strong></td>
+                            <td>محاولة استدعاء معرف عميل أو طلب بيع يتبع لمستأجر آخر.</td>
+                            <td>تفعيل PostgreSQL RLS الإجباري على مستوى قاعدة البيانات، مع منع تمرير <code>tenant_id</code> من طرف العميل.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>حقن الاستعلامات (SQLi)</strong></td>
+                            <td>التلاعب بحقول البحث والمدخلات المكانية.</td>
+                            <td>استخدام استعلامات Django ORM المهيأة مسبقاً (Parameterized Queries) وتطهير كافة معاملات PostGIS.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>تزييف الطلبات والمواقع (Spoofing)</strong></td>
+                            <td>تزوير إحداثيات الـ GPS أو التلاعب بساعة الهاتف.</td>
+                            <td>فحص مجسات نظام التشغيل لكشف Mock Locations، وحساب Clock Drift ومقارنته مع توقيت الخادم.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>تسريب الرموز (Credential Leakage)</strong></td>
+                            <td>استخراج رموز الوصول من الهواتف المفقودة أو المخترقة.</td>
+                            <td>تخزين الرموز داخل Keystore/Keychain المشفر، مع عمر زمني قصير لرمز الوصول (15 دقيقة) وتدوير Refresh Tokens.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Chapter 32 -->
+        <section class="chapter-section" id="ch32">
+            <h2 class="chapter-title">الفصل 32: استراتيجيات الاختبار الشامل (Comprehensive Testing Strategy)</h2>
+            <p>
+                يخضع النظام لهرم اختبار برمجي متكامل يغطي 85% كحد أدنى من الشيفرة البرمجية (Code Coverage):
+            </p>
+            <ul>
+                <li><strong>اختبارات العزل الصارم (Tenant Isolation Tests):</strong> اختبارات تكامل آلية تحاكي محاولة مستأجر استعلام بيانات مستأجر آخر والتأكد من إرجاع قائمة فارغة (404/Empty Set) بفضل RLS.</li>
+                <li><strong>اختبارات المزامنة غير المتصلة (Offline Sync Simulation):</strong> محاكاة انقطاع الاتصال المفاجئ، تعارض البيانات، وتكرار إرسال الحزم مع التحقق من معالجة Idempotency Key.</li>
+                <li><strong>اختبارات الدقة الجغرافية (GIS Spatial Tests):</strong> محاكاة حسابات ST_Distance عند خط الاستواء وخطوط العرض المختلفة لضمان دقة قياس أمتار السياج الجغرافي.</li>
+            </ul>
+        </section>
+
+        <!-- Chapter 33 -->
+        <section class="chapter-section" id="ch33">
+            <h2 class="chapter-title">الفصل 33: خطوط التكامل والنشر المستمر (CI/CD Pipeline Architecture)</h2>
+            <p>
+                تمت أتمتة دورة النشر عبر GitHub Actions باتباع سير عمل GitFlow الصارم:
+            </p>
+
+            <div class="diagram-box">
+                <span class="diagram-title">CI/CD Automated Deployment Pipeline (Mermaid)</span>
+                <div class="mermaid">
+flowchart LR
+    Push["Git Push / PR"] --> Lint["فحص الكود والتنسيق
+Flake8 / Black / ESLint"]
+    Lint --> Sec["الفحص الأمني
+Bandit / Trivy / Snyk"]
+    Sec --> Test["الاختبارات الآلية
+Pytest / Drift / RLS Tests"]
+    Test --> Build["بناء صور الحاويات
+Docker Multi-Stage Build"]
+    Build --> Staging["النشر لبيئة الاختبار
+Staging Verification"]
+    Staging --> Gate{"موافقة مهندس المعمارية والأمن"}
+    Gate -- نعم --> Prod["النشر التدريجي للإنتاج
+Zero-Downtime Rolling Update"]
+    Gate -- لا --> Rollback["إلغاء وتنبيه المطورين"]
+                </div>
+                <div class="diagram-caption">خطوات التدقيق الآلي من فحص الشيفرة حتى النشر الآمن في بيئة الإنتاج</div>
+            </div>
+        </section>
+    \n
+        <!-- PART XI -->
+        <div class="part-header" id="part11">
+            <h2>PART XI: تدقيق المشروعات مفتوحة المصدر (OPEN SOURCE AUDIT & COMPLIANCE)</h2>
+            <p>تدقيق وتقييم مستودعات GitHub المفتوحة ذات الصلة، تحليل التراخيص القانونية، وسياسات الامتثال التجاري لبيئات SaaS.</p>
+        </div>
+
+        <!-- Chapter 34 -->
+        <section class="chapter-section" id="ch34">
+            <h2 class="chapter-title">الفصل 34: تقييم المشروعات مفتوحة المصدر والامتثال (Open Source Evaluation)</h2>
+            <p>
+                تم إجراء تدقيق هندسي وقانوني صارم للمشروعات مفتوحة المصدر المرشحة للاستفادة منها كأطر مرجعية أو مكتبات مساعدة، مع مراعاة شروط التراخيص التجارية لبيئات SaaS:
+            </p>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>المشروع والرابط</th>
+                            <th>الغرض واللغة</th>
+                            <th>الترخيص المعتمد</th>
+                            <th>ما يمكن الاستفادة منه</th>
+                            <th>ما يُحظر استخدامه والتوصية</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>BottleCRM</strong><br><code>Django-CRM/Django-CRM</code></td>
+                            <td>نظام CRM عام مبني بـ Django/Python</td>
+                            <td>MIT License</td>
+                            <td>هيكلية جهات الاتصال والحسابات الأساسية.</td>
+                            <td>غير مهيأ لـ Multi-Tenancy أو RLS؛ يُعاد بناء النماذج من الصفر.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>PharmaVisit CRM</strong><br><code>saifeddinekhannoufi0-lab</code></td>
+                            <td>إدارة زيارات شركات الأدوية</td>
+                            <td>Needs Verification</td>
+                            <td>المصطلحات ونماذج أعمال مندوبي الأدوية.</td>
+                            <td>يُحظر نسخ أي شفرة برمجية مباشرة قبل التحقق من رخصة المستودع.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Flutter Offline Architecture</strong><br><code>gorkem91/flutter-offline-first</code></td>
+                            <td>نمط معمارية Offline-First لـ Flutter</td>
+                            <td>MIT License</td>
+                            <td>نمط Outbox ومستودع تنسيق المزامنة.</td>
+                            <td>يجب استبدال طبقة التخزين بقاعدة Drift المشفرة ذات المفاتيح المركبة.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Offline Sync Showcase</strong><br><code>maggew/offline-sync-showcase</code></td>
+                            <td>عرض عملي لبروتوكولات المزامنة</td>
+                            <td>Apache-2.0</td>
+                            <td>معالجة حالات تكرار الطلبات (Idempotency Key).</td>
+                            <td>مخصص لأغراض الإثبات؛ يجب دمج منطق حل التعارض المخصص للمجال الطبي.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="section-subtitle">34.1 دليل الامتثال للتراخيص البرمجية (License Compliance Guidelines)</h3>
+            <div class="callout callout-warning">
+                <strong>تحذير قانوني حاسم لخدمات SaaS [LEGAL COMPLIANCE]:</strong>
+                يُحظر حظراً باتاً دمج أو استخدام أي مكتبات أو مشروعات مرخصة برخصة <strong>AGPL (Affero General Public License)</strong> داخل النواة، لأن ذلك قد يجبر الشركة قانونياً على إتاحة الشفرة المصدرية لمنصة SaaS بالكامل للمشتركين عبر الشبكة. يُسمح فقط بالمكتبات المرخصة تحت تراخيص متساهلة مثل <strong>MIT</strong>, <strong>Apache-2.0</strong>, أو <strong>BSD-3-Clause</strong>.
+            </div>
+        </section>
+    \n
+        <!-- PART XII -->
+        <div class="part-header" id="part12">
+            <h2>PART XII: خطة التنفيذ ومنظومة الوكلاء الأذكياء (IMPLEMENTATION & AI MULTI-AGENTS)</h2>
+            <p>خارطة طريق التطوير المعتمدة، هندسة منظومة التطوير متعددة الوكلاء الذكية (AI Multi-Agent System)، والتعليمات البرمجية المرجعية الموحدة (Master AI Prompt).</p>
+        </div>
+
+        <!-- Chapter 35 -->
+        <section class="chapter-section" id="ch35">
+            <h2 class="chapter-title">الفصل 35: خارطة طريق التنفيذ والجدول الزمني (Development Roadmap)</h2>
+            <p>
+                تم تقسيم تنفيذ المنصة إلى 14 مرحلة هندسية متتالية ومترابطة لضمان الاستقرار والجودة المعمارية:
+            </p>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>المرحلة (Phase)</th>
+                            <th>المخرجات الهندسية الرئيسية</th>
+                            <th>الاعتماديات والمسؤول</th>
+                            <th>معيار اكتمال المرحلة (Exit Gate)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>1. Core SaaS Foundation</strong></td>
+                            <td>إعداد قاعدة البيانات PostgreSQL، امتداد PostGIS، وتفعيل RLS للمستأجرين.</td>
+                            <td>Lead DBA / Chief Architect</td>
+                            <td>اجتياز اختبارات عزل البيانات بنسبة 100%.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2. Identity & RBAC</strong></td>
+                            <td>تطبيق Django Auth، إدارة المستخدمين، الأدوار، وتوليد JWT الآمن.</td>
+                            <td>Backend Architect</td>
+                            <td>إصدار توكنات مشفرة تحمل سياق المستأجر بنجاح.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>3. Medical Customers & GIS</strong></td>
+                            <td>سجلات المستشفيات والعيادات والصيدليات، وحساب المسافات الجيوديسية.</td>
+                            <td>GIS Engineer / Backend</td>
+                            <td>حساب دقيق لنصف قطر السياج الجغرافي بالأمتار.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>4. Flutter Offline Engine</strong></td>
+                            <td>بناء قاعدة Drift المحلية، تشفير SQLCipher، ونمط Outbox للمزامنة.</td>
+                            <td>Flutter Architect</td>
+                            <td>إجراء عمليات الحفظ والاسترجاع كاملة بدون إنترنت.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>5. Field Visits & GPS Check-in</strong></td>
+                            <td>تنفيذ فحص الموقع النقطي، كشف تزييف المواقع، ودورة اعتماد المشرفين.</td>
+                            <td>Mobile & Backend Leads</td>
+                            <td>تسجيل الـ Check-in وتصنيف الحالات بدقة متناهية.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>6. Sales Orders & Approvals</strong></td>
+                            <td>كتالوج الأسعار، لقطات الأسعار الثابتة، وسير موافقات الخصومات.</td>
+                            <td>Backend / SvelteKit Leads</td>
+                            <td>تنفيذ دورة أمر البيع والموافقات بالكامل.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>7. ERP Gateway & Integration</strong></td>
+                            <td>بوابة Webhooks الموقعة بـ HMAC وتصدير الطلبات المعتمدة.</td>
+                            <td>Integration Architect</td>
+                            <td>تصدير وتأكيد استلام الأوامر مع أنظمة ERP التجريبية.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>8. Production Hardening & CI/CD</strong></td>
+                            <td>إعداد Docker و Nginx وفحص الأمان ونشر النسخة التجريبية (Pilot).</td>
+                            <td>DevOps & Security Leads</td>
+                            <td>إتمام فحص الاختراق ونشر البيئة الحية بنجاح.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Chapter 36 -->
+        <section class="chapter-section" id="ch36">
+            <h2 class="chapter-title">الفصل 36: نظام التطوير متعدد الوكلاء الذكي (AI Multi-Agent System)</h2>
+            <p>
+                لضمان التنفيذ البرمجي السريع والدقيق عبر أدوات الذكاء الاصطناعي (مثل Cursor و Antigravity وغيرها)، تم تصميم مصفوفة أدوار متخصصة تحاكي فريق هندسة برمجيات متكامل:
+            </p>
+
+            <div class="diagram-box">
+                <span class="diagram-title">AI Multi-Agent Orchestration & Governance Hierarchy</span>
+                <div class="mermaid">
+flowchart TD
+    Lead["Agent 00: Chief Architect / Orchestrator
+(حارس المعمارية وصاحب القرار النهائي)"]
+    DBA["Agent 02: PostgreSQL & PostGIS DBA
+(المسؤول الحصري عن جداول DDL)"]
+    BE["Agent 01: Django Backend Engineer
+(بناء الـ API ومنطق الخدمات)"]
+    FE["Agent 03: SvelteKit Frontend Engineer
+(لوحة التحكم ونظام التصميم)"]
+    Mob["Agent 04: Flutter Mobile Architect
+(التطبيق الميداني و Drift Offline)"]
+    Sec["Agent 06: Cybersecurity Architect
+(سلطة الفيتو على خروقات RLS والأمان)"]
+    QA["Agent 05: QA & Integration Lead
+(بوابة الاختبارات والمصادقة)"]
+    DevOps["Agent 07: DevOps & Docker Lead
+(النشر والبنية التحتية)"]
+
+    Lead -->|إسناد المهام والمواصفات| DBA
+    Lead -->|عقود الواجهات OpenAPI| BE
+    Lead -->|مواصفات الشاشات| FE
+    Lead -->|بروتوكولات المزامنة| Mob
+
+    DBA --> BE
+    BE --> QA
+    FE --> QA
+    Mob --> QA
+
+    QA --> Sec
+    Sec -->|حق النقض في حال فشل العزل| Lead
+    Sec -->|اعتماد الجاهزية| DevOps
+                </div>
+                <div class="diagram-caption">الهيكل التنظيمي لفرق الوكلاء الأذكياء مع تحديد صلاحيات الفيتو الأمني والمعماري</div>
+            </div>
+
+            <div class="callout callout-info">
+                <strong>قواعد الحوكمة البرمجية بين الوكلاء:</strong>
+                <ul>
+                    <li><strong>سلطة المعمارية النهائية:</strong> لا يجوز لأي وكيل تعديل حدود الوحدات النمطية أو إدخال مكتبات خارجية دون موافقة Agent 00.</li>
+                    <li><strong>ملكية المخطط لقواعد البيانات:</strong> Agent 02 هو المسؤول الوحيد عن تعديل جداول قاعدة البيانات وملفات الهجرة (Migrations).</li>
+                    <li><strong>حق الفيتو الأمني الصارم:</strong> يمتلك Agent 06 صلاحية إلغاء أو رفض أي دمج برمجي (PR) إذا تضمن تجاوزاً لسياسة RLS أو تمرير لمعرف المستأجر من طرف العميل دون تحقق.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Chapter 37 -->
+        <section class="chapter-section" id="ch37">
+            <h2 class="chapter-title">الفصل 37: تعليمات البيئة البرمجية الذكية (Master AI Agent Instructions)</h2>
+            <p>
+                تمثل التعليمات التالية التوجيه البرمجي المرجعي الصارم (Master Prompt) الجاهز للحقن في بيئات وكلاء البرمجة الذكية (AI Coding Agents):
+            </p>
+
+            <div class="code-wrapper">
+                <div class="code-header">
+                    <span>Master Reusable AI Coding Prompt (Antigravity / Cursor System Prompt)</span>
+                    <button class="copy-btn" onclick="copyCode(this)">نسخ موجه الذكاء الاصطناعي</button>
+                </div>
+                <pre><code># ==============================================================================
+# MASTER INSTRUCTION FOR AI CODING AGENT: MEDICAL CRM SAAS ENGINEERING
+# ==============================================================================
+You are an expert autonomous software engineer working on the Medical CRM SaaS platform.
+You must adhere strictly to the engineering rules defined in the official Architecture Reference:
+
+1. ARCHITECTURAL BOUNDARIES & TENANCY:
+   - This is a Modular Monolith with PostgreSQL Row-Level Security (RLS).
+   - NEVER bypass or weaken tenant isolation. The tenant context (`organization_id`) must
+     ALWAYS be extracted server-side from verified authentication tokens. Never trust client headers.
+   - Every tenant-scoped table MUST have `organization_id` and RLS enforced via FORCE ROW LEVEL SECURITY.
+
+2. GIS & PRIVACY MANDATE:
+   - GPS coordinates must ONLY be captured at the instant of a user-initiated Visit Check-in.
+   - NEVER implement or introduce background continuous GPS tracking or periodic pinging.
+   - Use PostGIS `GEOGRAPHY(Point, 4326)` for spatial distance calculations.
+
+3. DOMAIN RESPONSIBILITIES:
+   - The CRM manages sales activities, customer detailing, visit proofs, and sales order workflows.
+   - INVENTORY and OFFICIAL TAX INVOICING belong exclusively to the external ERP system.
+   - Do NOT build an independent warehouse inventory ledger or fiscal accounting module inside this CRM.
+
+4. MOBILE OFFLINE-FIRST:
+   - Mobile client (Flutter) must rely on Drift/SQLite with encrypted local storage.
+   - Use the Outbox Pattern with idempotency keys for sync operations.
+   - Do not use generic Last-Write-Wins; enforce entity-specific conflict resolution.
+
+5. CODE QUALITY & TESTING:
+   - Never claim a feature is complete without providing comprehensive unit and integration tests.
+   - Write clean, production-grade code with explicit error handling and security sanitization.
+# ==============================================================================</code></pre>
+            </div>
+        </section>
+    \n
+    </main>
+</div>
+
+<footer class="book-footer">
+    <p><strong>Medical CRM SaaS – Complete Software Engineering Architecture & Technical Reference Book</strong></p>
+    <p style="margin-top: 0.5rem; color: var(--text-muted);">
+        وثيقة معمارية وهندسية مرجعية متكاملة ومصممة لفرق التطوير والوكلاء البرمجيين | تم الفحص والمصادقة الهندسية
+    </p>
+</footer>
+
+<button id="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="الرجوع للأعلى">↑</button>
+
+<script>
+    // 1. Reading Progress Bar
+    window.onscroll = function() {
+        let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        let scrolled = (winScroll / height) * 100;
+        document.getElementById("progress-bar").style.width = scrolled + "%";
+
+        // Show/hide Back to Top button
+        let btn = document.getElementById("back-to-top");
+        if (winScroll > 300) {
+            btn.style.display = "flex";
+        } else {
+            btn.style.display = "none";
+        }
+    };
+
+    // 2. Copy Code Snippet Functionality
+    function copyCode(button) {
+        let pre = button.parentElement.nextElementSibling;
+        let code = pre.querySelector("code") ? pre.querySelector("code").innerText : pre.innerText;
+        navigator.clipboard.writeText(code).then(function() {
+            let originalText = button.innerText;
+            button.innerText = "تم النسخ ✓";
+            button.style.backgroundColor = "var(--accent-teal)";
+            button.style.color = "#ffffff";
+            setTimeout(function() {
+                button.innerText = originalText;
+                button.style.backgroundColor = "";
+                button.style.color = "";
+            }, 2000);
+        });
+    }
+
+    // 3. Search Filter within Book
+    function searchContent() {
+        let input = document.getElementById("docSearch").value.toLowerCase();
+        let sections = document.querySelectorAll(".chapter-section");
+        sections.forEach(function(section) {
+            let text = section.innerText.toLowerCase();
+            if (text.includes(input)) {
+                section.style.display = "";
+            } else {
+                section.style.display = input.trim() === "" ? "" : "none";
+            }
+        });
+    }
+</script>
+</body>
+</html>
+    

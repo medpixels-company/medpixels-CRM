@@ -1,0 +1,39 @@
+# Virtual environments
+.venv/
+env/
+venv/
+__pycache__/
+*.pyc
+
+# Dependencies
+node_modules/
+.svelte-kit/
+build/
+dist/
+
+# Flutter / Dart
+.dart_tool/
+.packages
+build/
+android/.gradle/
+ios/Pods/
+
+# Environment files & secrets
+.env
+.env.local
+.env.*.local
+*.pem
+
+# IDEs & System files
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+.DS_Store
+
+# Reference repositories (external references)
+Django-CRM-master/
+flutter-offline-first-architecture-main/
+offline-data-collection_app-main/
+offline-sync-showcase-main/
+PharmaVisit-CRM-main/
